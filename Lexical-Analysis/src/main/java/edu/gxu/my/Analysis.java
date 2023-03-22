@@ -192,7 +192,7 @@ public class Analysis {
                     matches.append(ch);
                     state = nextState;
                 }
-                if (!isError) {
+                if (!isError && state == 5) {
                     addToken(matches, TokenType.StringConst.getType(), CategoryCodeEnum.StringConst.getCode());
                 }
                 continue;

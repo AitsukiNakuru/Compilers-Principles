@@ -40,9 +40,9 @@ public class Gui extends JFrame {
         scrollPane2.setBounds(850, 0, 650, 800);
         scrollPane2.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         getContentPane().add(scrollPane2);
-        String[] resultTableTitleList = new String[]{"Line Number", "Token", "Type", "Code"};
+        String[] resultTableTitleList = new String[]{"Line Number", "Token Value", "Token Type", "Category Code"};
         JTable resultTable = new JTable(new DefaultTableModel(new Object[][]{}, resultTableTitleList));
-        DefaultTableModel resultTableModel = (DefaultTableModel) resultTable.getModel();
+
         resultTable.setForeground(Color.BLACK);
         resultTable.setFillsViewportHeight(true);
         resultTable.setBackground(new Color(255, 255, 255));
@@ -51,6 +51,8 @@ public class Gui extends JFrame {
         analysisButton.addActionListener(e -> {
             Analysis analysis = new Analysis(textArea.getText());
             List<Token> tokenList = analysis.analyze();
+            DefaultTableModel resultTableModel = (DefaultTableModel) resultTable.getModel();
+            resultTableModel.setRowCount(0);
             for (Token token : tokenList) {
                 resultTableModel.addRow(new Object[]{token.lineNumber, token.value, token.type, token.categoryCode});
             }
@@ -58,7 +60,6 @@ public class Gui extends JFrame {
                 JOptionPane.showMessageDialog(null, "请输入正确文本", "Warning", JOptionPane.PLAIN_MESSAGE);
             }
         });
-
         analysisButton.setBounds(650, 0, 200, 50);
         getContentPane().add(analysisButton);
         setVisible(true);
