@@ -180,9 +180,10 @@ public class Analysis {
                         break;
                     }
                     int nextState = Util.getNextStringState(state, ch);
-                    // 可能'\\'需要特判，不太清楚
+                    // 可能'\\'需要特判，不太清楚。
+                    // 经过验证，发现不需要特判
                     if (state == 4) {
-                        matches.append('\\');
+                        //matches.append('\\');
                     }
                     if (nextState == 6) {
                         isError = true;
@@ -211,6 +212,7 @@ public class Analysis {
                             if (!canGetNextChar()) {
                                 matches.append('\n');
                                 if (canGetNextLine()) {
+                                    state = 3;
                                     getNextLine();
                                     continue;
                                 }

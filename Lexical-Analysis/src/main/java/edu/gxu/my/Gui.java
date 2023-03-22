@@ -48,6 +48,7 @@ public class Gui extends JFrame {
         resultTable.setBackground(new Color(255, 255, 255));
         scrollPane2.setViewportView(resultTable);
         JButton analysisButton = new JButton("analysis");
+
         analysisButton.addActionListener(e -> {
             Analysis analysis = new Analysis(textArea.getText());
             List<Token> tokenList = analysis.analyze();
