@@ -3,8 +3,13 @@ package edu.gxu.my;
 import edu.gxu.my.Analysis;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.text.Document;
 import java.awt.*;
+import java.awt.event.ContainerEvent;
+import java.awt.event.ContainerListener;
 import java.io.File;
 import java.io.InputStream;
 import java.io.Serial;
@@ -27,7 +32,6 @@ public class Gui extends JFrame {
         scrollPane1.setBounds(0, 0, 650, 800);
         scrollPane1.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         getContentPane().add(scrollPane1);
-
         JTextArea textArea = new JTextArea();
         scrollPane1.setViewportView(textArea);
         JScrollPane scrollPane2 = new JScrollPane();
@@ -36,26 +40,25 @@ public class Gui extends JFrame {
         scrollPane2.setBounds(850, 0, 650, 800);
         scrollPane2.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         getContentPane().add(scrollPane2);
-        String[] name1 = new String[]{"Line Number", "Token", "Type", "Code"};
-        JTable resultTable = new JTable(new DefaultTableModel(new Object[][]{}, name1));
+        String[] resultTableTitleList = new String[]{"Line Number", "Token", "Type", "Code"};
+        JTable resultTable = new JTable(new DefaultTableModel(new Object[][]{}, resultTableTitleList));
+        DefaultTableModel resultTableModel = (DefaultTableModel) resultTable.getModel();
         resultTable.setForeground(Color.BLACK);
         resultTable.setFillsViewportHeight(true);
         resultTable.setBackground(new Color(255, 255, 255));
         scrollPane2.setViewportView(resultTable);
         JButton analysisButton = new JButton("analysis");
         analysisButton.addActionListener(e -> {
-            DefaultTableModel model1 = new DefaultTableModel(new Object[][]{}, name1);
-            resultTable.setModel(model1);
             Analysis analysis = new Analysis(textArea.getText());
             List<Token> tokenList = analysis.analyze();
-            DefaultTableModel resultTableModel = (DefaultTableModel) resultTable.getModel();
             for (Token token : tokenList) {
                 resultTableModel.addRow(new Object[]{token.lineNumber, token.value, token.type, token.categoryCode});
             }
             if (resultTable.getRowCount() == 0) {
-                JOptionPane.showMessageDialog(null, "请输入文本", "Warning", JOptionPane.PLAIN_MESSAGE);
+                JOptionPane.showMessageDialog(null, "请输入正确文本", "Warning", JOptionPane.PLAIN_MESSAGE);
             }
         });
+
         analysisButton.setBounds(650, 0, 200, 50);
         getContentPane().add(analysisButton);
         setVisible(true);

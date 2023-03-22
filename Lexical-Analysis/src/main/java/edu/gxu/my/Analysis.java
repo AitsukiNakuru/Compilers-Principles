@@ -121,7 +121,6 @@ public class Analysis {
             // 数字开头，数字常量
             if (Util.isDigit(ch)) {
                 int state = 1;
-                int k;
                 int constCode = 0;
                 // 一直读取直到与数字无关的字符
                 while ((!Util.isEndChar(ch)) && (Util.isDigit(ch) || Util.isDigitChar(ch))) {
@@ -258,22 +257,22 @@ public class Analysis {
                     char self = ch;
                     if (canGetNextChar()) {
                         ch = getNextChar();
-                    }
-                    if (ch == self) {
-                        matches.append(ch);
-                    } else {
-                        backIndex();
+                        if (ch == self) {
+                            matches.append(ch);
+                        } else {
+                            backIndex();
+                        }
                     }
                 }
                 // 先判断是否可以接等号，在判断下一个字符是否为等号
                 if (Util.canFollowEquals(ch)) {
-                    if (canGetNextLine()) {
+                    if (canGetNextChar()) {
                         ch = getNextChar();
-                    }
-                    if (ch == '=') {
-                        matches.append(ch);
-                    } else {
-                        backIndex();
+                        if (ch == '=') {
+                            matches.append(ch);
+                        } else {
+                            backIndex();
+                        }
                     }
                 }
                 addToken(matches, TokenType.Operator.getType(), Util.getOperatorCode(matches.toString()));
