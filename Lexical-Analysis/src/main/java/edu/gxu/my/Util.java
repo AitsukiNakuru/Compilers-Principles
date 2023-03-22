@@ -213,6 +213,12 @@ public class Util {
         return ch == '\t' || ch == '\0' || ch == '\n' || ch == '\r';
     }
 
+    /**
+     * 获取下一个字符串DFA状态
+     * @param state 当前状态
+     * @param ch 当前字符
+     * @return 下一个状态
+     */
     public static int getNextStringState(int state, char ch) {
         switch (state) {
             case 1: {
@@ -241,6 +247,13 @@ public class Util {
         }
         return 6;
     }
+
+    /**
+     * 获取下一个字符DFA状态
+     * @param state 当前状态
+     * @param ch 当前字符
+     * @return 下一个状态
+     */
     public static int getNextCharState(int state, char ch) {
         switch (state) {
             case 1: {
@@ -276,6 +289,12 @@ public class Util {
                 || ch == 't' || ch == 'v' || ch == '?' || ch == '0';
     }
 
+    /**
+     * 获取下一个数字DFA状态
+     * @param state 当前状态
+     * @param ch 当前字符
+     * @return 下一个状态
+     */
     public static int getNextDigitState(int state, char ch) {
         switch (state) {
             case 1: {
@@ -330,6 +349,12 @@ public class Util {
     }
 
 
+    /**
+     * 获取下一个字符DFA状态
+     * @param state 当前状态
+     * @param ch 当前字符
+     * @return 下一个状态
+     */
     public static int getNextCommentState(int state, char ch) {
         switch (state) {
             case 1: {
