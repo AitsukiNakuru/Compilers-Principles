@@ -1,11 +1,10 @@
-package edu.gxu.my;
-
-import java.util.*;
+package edu.gxu.lyc;
 
 import edu.gxu.common.CategoryCodeEnum;
 import edu.gxu.common.TokenType;
-import edu.gxu.sbhrw.Token;
-import edu.gxu.sbhrw.Util;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Analysis {
     String originText;  // 读入的测试样例文本
@@ -64,7 +63,6 @@ public class Analysis {
     public void backIndex() {
         index -= 1;
     }
-
     /**
      * 是否可以获取下一行字符
      * @return 是否可以获取下一行字符
@@ -73,6 +71,9 @@ public class Analysis {
         return lineNumber+1 < segmentTextList.length;
     }
 
+    public boolean isEndChar(char ch) {
+        return index == charList.length-1;
+    }
     /**
      * 获取下一行字符，并重置index为-1，index = -1, lineNumber += 1
      */
@@ -89,7 +90,7 @@ public class Analysis {
      * @param categoryCode 种别码
      */
     public void addToken(StringBuilder matches, String type, Integer categoryCode) {
-        tokenList.add(new Token(matches.toString(), type, categoryCode, lineNumber));
+        tokenList.add(new Token(matches.toString(), type, categoryCode, lineNumber+1));
     }
 
     public void handleLine() {
@@ -102,17 +103,17 @@ public class Analysis {
                 // 一直读取直到不是字母或者下划线或者数字为止
                 while (canGetNextChar()) {
                     ch = getNextChar();
-                    if (Util.isEndChar(ch)) {
-                        backIndex();
-                        break;
-                    }
+//                    if (isEndChar(ch)) {
+//                        backIndex();
+//                        break;
+//                    }
                     if (!Util.isAlphaOrUnderline(ch) && !Util.isDigit(ch)) {
                         backIndex();
                         break;
                     }
                     matches.append(ch);
                 }
-                // 判断是关键字还是界符
+                // 判断是关键字还是标识符
                 if (Util.isKeyword(matches.toString())) {
                     addToken(matches, TokenType.Keyword.getType(), Util.getKeywordCode(matches));
                 } else {
@@ -125,7 +126,8 @@ public class Analysis {
                 int state = 1;
                 int constCode = 0;
                 // 一直读取直到与数字无关的字符
-                while ((!Util.isEndChar(ch)) && (Util.isDigit(ch) || Util.isDigitChar(ch))) {
+//                while ((!isEndChar(ch)) && (Util.isDigit(ch) || Util.isDigitChar(ch))) {
+                while (  (Util.isDigit(ch) || Util.isDigitChar(ch))) {
                     // 如果不是整数则改变数字类型
                     if (ch == '.'){
                         constCode = CategoryCodeEnum.FloatConst.getCode();
@@ -147,7 +149,7 @@ public class Analysis {
                         break;
                     }
                 }
-                // 判断是否为终态
+                // 判断是否为非终态
                 boolean isError = state == 3 || state == 5 || state == 6 || state == 8;
                 if (isError) {
                     break;
@@ -155,7 +157,7 @@ public class Analysis {
                 addToken(matches, TokenType.NumberConst.getType(), constCode);
                 continue;
             }
-            // '\''开头，字符
+            // '开头，字符
             if (ch == '\'') {
                 int state = 2;
                 matches.append(ch);
@@ -163,14 +165,19 @@ public class Analysis {
                     if (canGetNextChar()) {
                         ch = getNextChar();
                         matches.append(ch);
-                    }
-                    state = Util.getNextCharState(state, ch);
+                        state = Util.getNextCharState(state, ch);
+                    }else
+                        break;
                 }
                 if (state == 5) {
                     addToken(matches, TokenType.CharConst.getType(), CategoryCodeEnum.CharConst.getCode());
                 }
+                else{
+                    addToken(matches, TokenType.Error.getType(), CategoryCodeEnum.Error.getCode());
+                }
+                continue;
             }
-            // '\"'开头，字符串
+            // "开头，字符串
             if (ch == '\"') {
                 int state = 2;
                 matches.append(ch);
@@ -178,10 +185,10 @@ public class Analysis {
                 // 一直读取到下一个 '\"'为止
                 while (state != 5 && canGetNextChar()) {
                     ch = getNextChar();
-                    if (Util.isEndChar(ch)) {
-                        isError = true;
-                        break;
-                    }
+//                    if (isEndChar(ch)) {
+//                        isError = true;
+//                        break;
+//                    }
                     int nextState = Util.getNextStringState(state, ch);
                     // 可能'\\'需要特判，不太清楚。
                     // 经过验证，发现不需要特判
@@ -196,62 +203,72 @@ public class Analysis {
                     matches.append(ch);
                     state = nextState;
                 }
-                if (!isError && state == 5) {
+                if (state == 5) {
                     addToken(matches, TokenType.StringConst.getType(), CategoryCodeEnum.StringConst.getCode());
+                }
+                else{
+                    addToken(matches, TokenType.Error.getType(), CategoryCodeEnum.Error.getCode());
                 }
                 continue;
             }
-            // '/'开头，注释或者操作符/=
+            // /开头，注释或者操作符/=
             if (ch == '/') {
                 matches.append(ch);
-                ch = getNextChar();
-                int state = 3;
-                switch (ch) {
-                    // 多行注释
-                    case '*' -> {
-                        matches.append(ch);
-                        while (state != 5) {
-                            // 如果当前行已经结束，添加回车，读取下一行
-                            if (!canGetNextChar()) {
-                                matches.append('\n');
-                                if (canGetNextLine()) {
-                                    state = 3;
-                                    getNextLine();
-                                    continue;
+                if(!canGetNextChar()){
+                    addToken(matches, TokenType.Operator.getType(), Util.getOperatorCode(matches.toString()));
+                }
+                else{
+                    ch = getNextChar();
+                    int state = 3;
+                    switch (ch) {
+                        // 多行注释
+                        case '*' -> {
+                            matches.append(ch);
+                            while (state != 5) {
+                                // 如果当前行已经结束，添加回车，读取下一行
+                                if (!canGetNextChar()) {
+                                    matches.append('\n');
+                                    if (canGetNextLine()) {
+                                        state = 3;
+                                        getNextLine();
+                                        continue;
+                                    }
+                                    addToken(matches, TokenType.Error.getType(), CategoryCodeEnum.Error.getCode());
+                                    break;
                                 }
-                                break;
+                                ch = getNextChar();
+                                matches.append(ch);
+                                state = Util.getNextCommentState(state, ch);
                             }
-                            ch = getNextChar();
+                        }
+                        // 单行注释
+                        case '/' -> {
                             matches.append(ch);
-                            state = Util.getNextCommentState(state, ch);
+                            // 直接读完当前行
+                            while (canGetNextChar()) {
+                                ch = getNextChar();
+                                matches.append(ch);
+                            }
+                            addToken(matches, TokenType.Comment.getType(), CategoryCodeEnum.Comment.getCode());
+                            continue;
+                        }
+                        // 操作符/=
+                        default -> {
+                            if (ch == '=') {
+                                matches.append(ch);
+                            } else {
+                                backIndex();
+                            }
+                            addToken(matches, TokenType.Operator.getType(), Util.getOperatorCode(matches.toString()));
+                            continue;
                         }
                     }
-                    // 单行注释
-                    case '/' -> {
-                        matches.append(ch);
-                        // 直接读完当前行
-                        while (canGetNextChar()) {
-                            ch = getNextChar();
-                            matches.append(ch);
-                        }
-                        addToken(matches, TokenType.Comment.getType(), CategoryCodeEnum.Comment.getCode());
-                        continue;
+                    if (state != 5) {
+                        break;
                     }
-                    // 操作符/=
-                    default -> {
-                        if (ch == '=') {
-                            matches.append(ch);
-                        } else {
-                            backIndex();
-                        }
-                        addToken(matches, TokenType.Operator.getType(), Util.getOperatorCode(matches.toString()));
-                        continue;
-                    }
+                    addToken(matches, TokenType.Comment.getType(), CategoryCodeEnum.Comment.getCode());
                 }
-                if (state != 5) {
-                    break;
-                }
-                addToken(matches, TokenType.Comment.getType(), CategoryCodeEnum.Comment.getCode());
+
                 continue;
             }
             // 操作符开头，操作符长度最多为3，只需要判断当前字符和下两个字符
@@ -261,30 +278,61 @@ public class Analysis {
                     optTest3=""+ch+charList[index+1]+charList[index+2];
                 if((index+1)<charList.length)
                     optTest2=""+charList[index]+charList[index+1];
-                if(index+2<charList.length&& edu.gxu.lyc.Util.isOperator(String.valueOf(optTest3))) {//还有三个字符，看这三个是否能构成操作符。
-                    index+=2;
-                    matches.append(optTest3);
+                if(index+2<charList.length&&Util.isOperator(String.valueOf(optTest3))) {//还有三个字符，看这三个是否能构成操作符。
+                        index+=2;
+                        matches.append(optTest3);
                 }
-                else if(index+1<charList.length&& edu.gxu.lyc.Util.isOperator(String.valueOf(optTest2))) {//还有三个字符，看这三个是否能构成操作符。
-                    index+=1;
-                    matches.append(optTest2);
+                else if(index+1<charList.length&&Util.isOperator(String.valueOf(optTest2))) {//还有三个字符，看这三个是否能构成操作符。
+                        index+=1;
+                        matches.append(optTest2);
                 }
                 else{
                     matches.append(ch);
                 }
-                addToken(matches, TokenType.Operator.getType(), edu.gxu.lyc.Util.getOperatorCode(matches.toString()));
+                addToken(matches, TokenType.Operator.getType(), Util.getOperatorCode(matches.toString()));
                 continue;
             }
+            /*if (Util.isOperator(String.valueOf(ch))) {
+                matches.append(ch);
+                // 先判断是否可以接self，再判断一个字符是否和self相同
+                if (Util.canFollowSelf(ch)&&ch!='=') {//只有ch!="="才能进去，ch=='='将由下一个if处理。
+                    //// 否则===会进canFollowSelf和canFollowEquals的if语句里面。可能会被判为操作符，。
+                    char self = ch;
+                    if (canGetNextChar()) {
+                        ch = getNextChar();
+                        if (ch == self) {
+                            matches.append(ch);
+                        } else {
+                            backIndex();
+                        }
+                    }
+                }
+                // 先判断是否可以接等号，在判断下一个字符是否为等号
+                if (Util.canFollowEquals(ch)) {
+                    if (canGetNextChar()) {
+                        ch = getNextChar();
+                        if (ch == '=') {
+                            matches.append(ch);
+                        } else {
+                            backIndex();
+                        }
+                    }
+                }
+                addToken(matches, TokenType.Operator.getType(), Util.getOperatorCode(matches.toString()));
+                continue;
+            }*/
             // 判断是否为界符，界符长度为1，可以直接判断
             if (Util.isDelimiter(String.valueOf(ch))) {
                 matches.append(ch);
                 addToken(matches, TokenType.Delimiter.getType(), Util.getDelimiterCode(matches.toString()));
                 continue;
             }
-            // 剩下的是非法情况，不想写
+            // 剩下的是非法情况
             else {
                 if (!Util.isOtherChar(ch)) {
-
+                    matches.append(ch);
+                    addToken(matches, TokenType.Error.getType(), CategoryCodeEnum.Error.getCode());
+                    continue;
                 }
             }
         }
@@ -296,7 +344,7 @@ public class Analysis {
             getNextLine();
             handleLine();
         }
-        System.out.println(tokenList.toString());
+        //System.out.println(tokenList.toString());
         return tokenList;
     }
 }

@@ -3,12 +3,13 @@ package edu.gxu.common;
 public enum TokenType {
     Keyword("Keyword"),
     Operator("Operator"),
-    Identifier("Identifier"),
+    Identifier("IdentifierHandle"),
     NumberConst("NumberConst"),
     StringConst("StringConst"),
     CharConst("CharConst"),
     Comment("Comment"),
     Delimiter("Delimiter"),
+    Error("Error"),
     ;
     private final String type;
     TokenType(String type) {

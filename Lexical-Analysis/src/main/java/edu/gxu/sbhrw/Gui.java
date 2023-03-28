@@ -1,4 +1,5 @@
-package edu.gxu.my;
+package edu.gxu.sbhrw;
+import edu.gxu.my.Analysis;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;

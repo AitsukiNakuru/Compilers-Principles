@@ -1,4 +1,4 @@
-package edu.gxu.my;
+package edu.gxu.lyc;
 
 import java.io.Serial;
 import java.util.HashMap;
@@ -15,7 +15,7 @@ public class Util {
             "union", "const", "float", "short", "unsigned",
             "continue", "for", "signed", "void", "default",
             "goto", "sizeof", "volatile", "do", "if",
-            "while", "static", "String", "int36"
+            "while", "static", "String"
     };
     /**
      * 关键字种别码 1xx
@@ -172,8 +172,8 @@ public class Util {
      * @param ch 需要判断的字符
      * @return 是否为结束字符
      */
-    public static boolean isEndChar(char ch) {
-        return ch == '\0';
+    public static boolean isAlpha(char ch) {
+        return ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') );
     }
     /**
      * 是否为字母或下划线
@@ -210,7 +210,7 @@ public class Util {
      * @return 是否为其他字符
      */
     public static boolean isOtherChar(char ch) {
-        return ch == '\t' || ch == '\0' || ch == '\n' || ch == '\r';
+        return ch == '\t' || ch == '\0' || ch == '\n' || ch == '\r'||ch==' ';
     }
 
     /**
@@ -221,10 +221,10 @@ public class Util {
      */
     public static int getNextStringState(int state, char ch) {
         switch (state) {
-            case 1: {
+            case 1-> {
 
             }
-            case 2: {
+            case 2-> {
                 if (ch == '\\') {
                     return 4;
                 }
@@ -232,7 +232,7 @@ public class Util {
                     return 3;
                 }
             }
-            case 3: {
+            case 3-> {
                 if (ch == '\\') {
                     return 4;
                 }
@@ -241,7 +241,7 @@ public class Util {
                 }
                 return 5;
             }
-            case 4: {
+            case 4-> {
                 return 3;
             }
         }
@@ -256,22 +256,30 @@ public class Util {
      */
     public static int getNextCharState(int state, char ch) {
         switch (state) {
-            case 1: {
+            case 1-> {
                 if (ch == '\'') {
                     return 2;
                 }
             }
-            case 2: {
+            case 2-> {
                 if (ch == '\\') {
                     return 4;
                 }
-                if (ch != '\'') {
+                if (ch != '\'') {//使用排除法，既不是',也不是\,说明是任意其他字符（包括汉字）。
                     return 3;
                 }
             }
-            case 3: {
+            case 3-> {
                 if (ch == '\'') {
                     return 5;
+                }
+            }
+            case 4-> {
+                if(isAlpha(ch)){
+                    return 3;
+                }
+                else {
+                    return 6;
                 }
             }
         }
@@ -297,12 +305,12 @@ public class Util {
      */
     public static int getNextDigitState(int state, char ch) {
         switch (state) {
-            case 1: {
+            case 1-> {
                 if (Util.isDigit(ch)) {
                     return 2;
                 }
             }
-            case 2: {
+            case 2-> {
                 if (Util.isDigit(ch)) {
                     return 2;
                 }
@@ -313,12 +321,12 @@ public class Util {
                     return 3;
                 }
             }
-            case 3: {
+            case 3-> {
                 if (Util.isDigit(ch)) {
                     return 4;
                 }
             }
-            case 4: {
+            case 4-> {
                 if (Util.isDigit(ch)) {
                     return 4;
                 }
@@ -326,7 +334,7 @@ public class Util {
                     return 5;
                 }
             }
-            case 5: {
+            case 5-> {
                 if (ch == '+' || ch == '-') {
                     return 6;
                 }
@@ -334,12 +342,12 @@ public class Util {
                     return 7;
                 }
             }
-            case 6: {
+            case 6-> {
                 if (Util.isDigit(ch)) {
                     return 7;
                 }
             }
-            case 7: {
+            case 7-> {
                 if (Util.isDigit(ch)) {
                     return 7;
                 }
@@ -357,17 +365,17 @@ public class Util {
      */
     public static int getNextCommentState(int state, char ch) {
         switch (state) {
-            case 1: {
+            case 1-> {
                 if (ch == '/') {
                     return 2;
                 }
             }
-            case 2: {
+            case 2-> {
                 if (ch == '*') {
                     return 3;
                 }
             }
-            case 3: {
+            case 3-> {
                 if (ch == '*') {
                     return 4;
                 }
@@ -375,7 +383,7 @@ public class Util {
                     return 3;
                 }
             }
-            case 4: {
+            case 4-> {
                 if (ch == '*') {
                     return 4;
                 }
@@ -386,15 +394,10 @@ public class Util {
                     return 3;
                 }
             }
-            default: {
+            default-> {
                 return 6;
             }
-
         }
-    }
-
-
-    public static boolean isInt36(char ch) {
-        return ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || (ch >= '0' && ch <= '9'));
+        return 6;
     }
 }
