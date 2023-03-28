@@ -4,8 +4,8 @@ import java.util.*;
 
 import edu.gxu.common.CategoryCodeEnum;
 import edu.gxu.common.TokenType;
-import edu.gxu.sbhrw.Token;
-import edu.gxu.sbhrw.Util;
+import edu.gxu.my.Token;
+import edu.gxu.my.Util;
 
 public class Analysis {
     String originText;  // 读入的测试样例文本
