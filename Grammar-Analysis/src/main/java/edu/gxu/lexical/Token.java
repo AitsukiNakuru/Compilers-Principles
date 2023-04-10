@@ -1,4 +1,4 @@
-package edu.gxu.sbhrw;
+package edu.gxu.lexical;
 
 public class Token {
     String value;

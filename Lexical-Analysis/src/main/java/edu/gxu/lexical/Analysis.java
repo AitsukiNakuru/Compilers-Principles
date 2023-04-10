@@ -7,9 +7,9 @@ import java.util.Map;
 
 
 public class Analysis {
-    private final String text;  // ¶ÁÈëµÄ²âÊÔÑùÀıÎÄ±¾
-    private final JTable mainTable;  // ĞĞÊı-Token-ÖÖ±ğÂë-µ¥´ÊÀà±ğ
-    private final JTable errorTable;  // ĞĞÊı-´íÎóÄÚÈİ-´íÎóĞÅÏ¢
+    private final String text;  // è¯»å…¥çš„æµ‹è¯•æ ·ä¾‹æ–‡æœ¬
+    private final JTable mainTable;  // è¡Œæ•°-Token-ç§åˆ«ç -å•è¯ç±»åˆ«
+    private final JTable errorTable;  // è¡Œæ•°-é”™è¯¯å†…å®¹-é”™è¯¯ä¿¡æ¯
 
     public Analysis(String text, JTable mainTable, JTable errorTable) {
         this.text = text;
@@ -17,36 +17,36 @@ public class Analysis {
         this.errorTable = errorTable;
     }
 
-    public static int symbol_pos = 0;  // ¼ÇÂ¼·ûºÅ±íÎ»ÖÃ
-    public static Map<String, Integer> symbol = new HashMap<>();  // ·ûºÅ±íHashMap
+    public static int symbol_pos = 0;  // è®°å½•ç¬¦å·è¡¨ä½ç½®
+    public static Map<String, Integer> symbol = new HashMap<>();  // ç¬¦å·è¡¨HashMap
 
-    public static int constant_pos = 0;  // ¼ÇÂ¼³£Á¿Î»ÖÃ
-    public static Map<String, Integer> constant = new HashMap<>();  // ³£Á¿±íHashMap
+    public static int constant_pos = 0;  // è®°å½•å¸¸é‡ä½ç½®
+    public static Map<String, Integer> constant = new HashMap<>();  // å¸¸é‡è¡¨HashMap
 
     public void lex() {
         String[] texts = text.split("\n");
-        //°´ĞĞ·Ö¸î
+        //æŒ‰è¡Œåˆ†å‰²
         symbol.clear();
-        //Çå³ı·ûºÅ±í
+        //æ¸…é™¤ç¬¦å·è¡¨
         symbol_pos = 0;
         constant.clear();
-        //Çå³ı³£Á¿±í
+        //æ¸…é™¤å¸¸é‡è¡¨
         constant_pos = 0;
         for (int m = 0; m < texts.length; m++) {
             String str = texts[m];
             if (str.equals(""))
                 continue;
-                //ºöÂÔ¿ÕĞĞ
+                //å¿½ç•¥ç©ºè¡Œ
             else {
                 char[] strLine = str.toCharArray();
                 for (int i = 0; i < strLine.length; i++) {
-                    //Öğ¸ö×Ö·ûµÄ·ÖÎö¹ı³Ì
+                    //é€ä¸ªå­—ç¬¦çš„åˆ†æè¿‡ç¨‹
                     char ch = strLine[i];
                     if (ch == ' ')
                         continue;
 
                     StringBuilder token = new StringBuilder();
-                    // Ê¶±ğ¹Ø¼ü×ÖºÍ±êÊ¶·û
+                    // è¯†åˆ«å…³é”®å­—å’Œæ ‡è¯†ç¬¦
                     if (Util.isAlpha(ch)) {
                         do {
                             token.append(ch);
@@ -56,15 +56,15 @@ public class Analysis {
                             ch = strLine[i];
                         } while (ch != '\0' && (Util.isAlpha(ch) || Util.isDigit(ch)));
                         i--;
-                        // Ê¶±ğ¹Ø¼ü×Ö
+                        // è¯†åˆ«å…³é”®å­—
                         if (Util.isKeyword(token.toString())) {
                             DefaultTableModel tableModel = (DefaultTableModel) mainTable.getModel();
                             tableModel.addRow(new Object[]{m + 1, token.toString(), token.toString().toUpperCase(), "-"});
                             mainTable.invalidate();
                         }
-                        // Ê¶±ğ±êÊ¶·û
+                        // è¯†åˆ«æ ‡è¯†ç¬¦
                         else {
-                            //µ±Ç°Ê¶±ğµ½µÄtokenÃ»ÓĞÖØ¸´³öÏÖ
+                            //å½“å‰è¯†åˆ«åˆ°çš„tokenæ²¡æœ‰é‡å¤å‡ºç°
                             if (symbol.isEmpty() || !symbol.containsKey(token.toString())) {
                                 symbol.put(token.toString(), symbol_pos);
                                 symbol_pos++;
@@ -75,7 +75,7 @@ public class Analysis {
                         }
 
                     }
-                    // Ê¶±ğÎŞ·ûºÅÊı
+                    // è¯†åˆ«æ— ç¬¦å·æ•°
                     else if (Util.isDigit(ch)) {
                         int state = 1;
                         int k;
@@ -92,7 +92,7 @@ public class Analysis {
 
                             for (k = 0; k <= 6; k++) {
                                 char[] tmpStr = Util.digitDFA[state].toCharArray();
-                                //ÒÀ¾İµ±Ç°×´Ì¬Ë÷ÒıDFA×ª»»±í
+                                //ä¾æ®å½“å‰çŠ¶æ€ç´¢å¼•DFAè½¬æ¢è¡¨
                                 if (ch != '#' && Util.is_digit_state(ch, tmpStr[k]) == 1) {
                                     token.append(ch);
                                     state = k;
@@ -107,18 +107,18 @@ public class Analysis {
                             ch = strLine[i];
                         }
                         boolean haveMistake = false;
-                        // ·ÇÖÕÌ¬
+                        // éç»ˆæ€
                         if (state == 2 || state == 4 || state == 5) {
                             haveMistake = true;
                         }
-                        // ÎŞ·ûºÅÊıºóÃæ½ô¸úµÄ·ûºÅ´íÎó
+                        // æ— ç¬¦å·æ•°åé¢ç´§è·Ÿçš„ç¬¦å·é”™è¯¯
                         else {
                             if ((ch == '.') || (!Util.isOperator(String.valueOf(ch))
                                     && !Util.isDigit(ch) && !Util.isDelimiter(String.valueOf(ch))
                                     && ch != ' '))
                                 haveMistake = true;
                         }
-                        // ´íÎó´¦Àí²ßÂÔÊÇÖ±½Ó¶ÁÈ¡µ½ÏÂÒ»¸ö½ç·û
+                        // é”™è¯¯å¤„ç†ç­–ç•¥æ˜¯ç›´æ¥è¯»å–åˆ°ä¸‹ä¸€ä¸ªç•Œç¬¦
                         if (haveMistake) {
                             while (ch != '\0' && ch != ',' && ch != ';' && ch != ' ') {
                                 token.append(ch);
@@ -151,7 +151,7 @@ public class Analysis {
                         }
                         i--;
                     }
-                    // Ê¶±ğ×Ö·û³£Á¿
+                    // è¯†åˆ«å­—ç¬¦å¸¸é‡
                     else if (ch == '\'') {
                         int state = 0;
                         token.append(ch);
@@ -188,7 +188,7 @@ public class Analysis {
                             mainTable.invalidate();
                         }
                     }
-                    // Ê¶±ğ×Ö·û´®³£Á¿
+                    // è¯†åˆ«å­—ç¬¦ä¸²å¸¸é‡
                     else if (ch == '"') {
                         boolean haveMistake = false;
                         StringBuilder str1 = new StringBuilder();
@@ -209,7 +209,7 @@ public class Analysis {
                                 char[] tmpStr = Util.stringDFA[state].toCharArray();
                                 if (Util.is_string_state(ch, tmpStr[k])) {
                                     str1.append(ch);
-                                    if (k == 2 && state == 1)  // ×ªÒå×Ö·û  
+                                    if (k == 2 && state == 1)  // è½¬ä¹‰å­—ç¬¦  
                                     {
                                         if (Util.isEsSt(ch))
                                             token.append('\\').append(ch);
@@ -237,7 +237,7 @@ public class Analysis {
                             mainTable.invalidate();
                         }
                     }
-                    //  Ê¶±ğ×¢ÊÍ//
+                    //  è¯†åˆ«æ³¨é‡Š//
                     else if (ch == '/') {
                         token.append(ch);
                         i++;
@@ -245,18 +245,18 @@ public class Analysis {
                             break;
                         ch = strLine[i];
 
-                        //²»ÊÇ¶àĞĞ×¢ÊÍ¼°µ¥ĞĞ×¢ÊÍ
+                        //ä¸æ˜¯å¤šè¡Œæ³¨é‡ŠåŠå•è¡Œæ³¨é‡Š
                         if (ch != '*' && ch != '/') {
                             if (ch == '=')
                                 token.append(ch); // /=  
                             else {
-                                i--; // Ö¸Õë»ØÍË 
+                                i--; // æŒ‡é’ˆå›é€€ 
                             }
                             DefaultTableModel tableModel1 = (DefaultTableModel) mainTable.getModel();
                             tableModel1.addRow(new Object[]{m + 1, token.toString(), "OP", token.toString()});
                             mainTable.invalidate();
                         }
-                        // ×¢ÊÍ¿ÉÄÜÊÇ¡®//¡¯Ò²¿ÉÄÜÊÇ¡®/*¡¯
+                        // æ³¨é‡Šå¯èƒ½æ˜¯â€˜//â€™ä¹Ÿå¯èƒ½æ˜¯â€˜/*â€™
                         else {
                             boolean haveMistake = false;
                             if (ch == '*') {
@@ -295,7 +295,7 @@ public class Analysis {
                                     }
                                 }
                             } else {
-                                //µ¥ĞĞ×¢ÊÍ¶ÁÈ¡ËùÓĞ×Ö·û
+                                //å•è¡Œæ³¨é‡Šè¯»å–æ‰€æœ‰å­—ç¬¦
                                 int index = str.lastIndexOf("//");
 
                                 String tmpStr = str.substring(index);
@@ -317,10 +317,10 @@ public class Analysis {
                             }
                         }
                     }
-                    // ÔËËã·ûºÍ½ç·û
+                    // è¿ç®—ç¬¦å’Œç•Œç¬¦
                     else if (Util.isOperator(String.valueOf(ch)) || Util.isDelimiter(String.valueOf(ch))) {
                         token.append(ch);
-                        if (Util.isPlusEqu(ch))  // ºóÃæ¿ÉÒÔÓÃÒ»¸ö"="
+                        if (Util.isPlusEqu(ch))  // åé¢å¯ä»¥ç”¨ä¸€ä¸ª"="
                         {
                             i++;
                             if (i >= strLine.length)
@@ -329,13 +329,13 @@ public class Analysis {
                             if (ch == '=')
                                 token.append(ch);
                             else {
-                                if (Util.isPlusSame(strLine[i - 1]) && ch == strLine[i - 1])  // ºóÃæ¿ÉÒÔÓÃÒ»¸öºÍ×Ô¼ºÒ»ÑùµÄ
+                                if (Util.isPlusSame(strLine[i - 1]) && ch == strLine[i - 1])  // åé¢å¯ä»¥ç”¨ä¸€ä¸ªå’Œè‡ªå·±ä¸€æ ·çš„
                                     token.append(ch);
                                 else
                                     i--;
                             }
                         }
-                        if (token.length() == 1)  //ÅĞ¶ÏÊÇ·ñÎª½ç·û
+                        if (token.length() == 1)  //åˆ¤æ–­æ˜¯å¦ä¸ºç•Œç¬¦
                         {
                             String signal = token.toString();
                             DefaultTableModel tableModel1 = (DefaultTableModel) mainTable.getModel();
@@ -351,7 +351,7 @@ public class Analysis {
                             mainTable.invalidate();
                         }
                     }
-                    //²»ºÏ·¨×Ö·û
+                    //ä¸åˆæ³•å­—ç¬¦
                     else {
                         if (ch != '\t' && ch != '\0' && ch != '\n' && ch != '\r') {
                             DefaultTableModel tableModel2 = (DefaultTableModel) errorTable.getModel();
