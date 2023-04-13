@@ -6,12 +6,12 @@ import edu.gxu.common.TokenTypeEnum;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Analysis {
+public class LexicalAnalysis {
     String originText;  // 读入的测试样例文本
     ArrayList<Token> tokenList = new ArrayList<>();
 
 
-    public Analysis(String originText) {
+    public LexicalAnalysis(String originText) {
         this.originText = originText;
     }
 
