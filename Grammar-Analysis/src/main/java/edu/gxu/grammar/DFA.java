@@ -24,7 +24,7 @@ public class DFA {
      */
     public int containsLRItemSet(LRItemSet source) {
         for (LRItemSet lrItemSet : lrItemSetList) {
-            if (lrItemSet.isSameState(source)) {
+            if (lrItemSet.equalTo(source)) {
                 return lrItemSet.id;
             }
         }

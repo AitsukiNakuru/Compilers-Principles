@@ -1,10 +1,10 @@
 package edu.gxu.lexical;
 
 public class Token {
-    String value;
-    String type;
-    Integer categoryCode;
-    Integer lineNumber;
+    public String value;
+    public String type;
+    public Integer categoryCode;
+    public Integer lineNumber;
 
     @Override
     public String toString() {

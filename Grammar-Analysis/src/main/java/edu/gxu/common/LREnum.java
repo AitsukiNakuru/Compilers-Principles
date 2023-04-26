@@ -7,7 +7,7 @@ public enum LREnum {
     Sharp("#"),
     Error("--"),
     Accept("ACCEPT"),
-    StartChar("S'")
+    StartChar("E")
 
     ;
     private final String str;

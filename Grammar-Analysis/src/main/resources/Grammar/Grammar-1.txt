@@ -1,0 +1,322 @@
+# LR文法，以双下划线“__”开头的是终结符，否则是非终结符。
+# 每一行文法之后的注释解释了对应的语法制导翻译会进行的操作，具体实现见代码。
+
+Program -> Declaration-List
+    # 1
+
+Declaration-List -> Declaration-List declaration
+    # 2
+
+Declaration-List -> declaration
+    # 3
+
+declaration -> varDeclaration
+    # 4
+
+#======================================================== var declaration ===============================
+
+varDeclaration -> TypeSpecifier varDeclList __;
+    # 5
+    # Add the varialbes to the symbol table in the varDeclList
+
+varDeclList -> varDeclList __, varDeclID
+    # 6
+    # Add verDeclID to varDeclList
+
+varDeclList -> varDeclID
+    # 7
+    # Add verDeclID to varDeclList
+
+
+varDeclID -> Pointer __id Array
+    # 8
+    # var_name = id, size = Array size. type add pointer
+
+Array -> Array __[ __number __]
+    # 9
+    # arr_size = arr_size * number.val
+
+Array -> __eof
+    # 10
+    # arr_size = 1
+
+TypeSpecifier -> __int
+    # 11
+    # type <- int
+
+TypeSpecifier -> __long
+    # 12
+    # type <-long
+
+TypeSpecifier -> __char
+    # 13
+    # type <- char
+
+TypeSpecifier -> __void
+    # 14
+    # type <- char
+
+Pointer -> Pointer __*
+    # 15
+    # pcnt = pcnt + 1
+
+Pointer -> __eof
+    # 16
+    # pcnt = 0
+
+#================================================= func declaration ==============================================
+
+declaration -> funDeclaration
+    # 17
+
+funDeclaration -> TypeSpecifier Pointer __id __( params __) CompoundStatement
+    # 18
+    # 销毁函数的符号表，释放内存。
+
+params -> paraList
+    # 19
+    # 当归约params时，添加栈帧。将函数名添加到符号表，新建函数的符号表 将参数添加至
+
+params -> __eof
+    # 20
+
+paraList -> paraList __, TypeSpecifier Pointer __id
+    # 21
+
+paraList -> TypeSpecifier Pointer __id
+    # 22
+
+#================================================= Statement ==============================================
+
+Statement -> CompoundStatement
+    # 23
+
+Statement -> ExpressionStatement
+    # 24
+
+Statement -> IfStatement
+    # 25
+
+Statement -> WhileStatement
+    # 26
+
+Statement -> returnStatement
+    # 27
+
+Statement -> breakStatement
+    # 28
+
+Statement -> continueStatement
+    # 29
+
+breakStatement -> __break __;
+    # 30
+
+continueStatement -> __continue __;
+    # 31
+
+returnStatement -> __return __;
+    # 32
+
+returnStatement -> __return expression __;
+    # 33
+
+IfStatement -> __if __( simpleExpression __) Statement ElifStat
+    # 34
+
+ElifStat -> __eof
+    # 35
+
+ElifStat -> __elif __( simpleExpression __) Statement ElifStat
+    # 36
+
+ElifStat -> __else Statement
+    # 37
+
+WhileStatement -> __while __( simpleExpression __) Statement
+    # 38
+
+
+CompoundStatement -> __{ localDeclarations statementList __}
+    # 39
+
+
+localDeclarations -> localDeclarations varDeclaration
+    # 40
+    # add to symbol table
+
+localDeclarations -> varDeclaration
+    # 41
+    # add to symbol table
+
+localDeclarations -> __eof
+    # 42
+
+
+statementList -> statementList Statement
+    # 43
+
+statementList -> __eof
+    # 44
+
+ExpressionStatement -> expression __;
+    # 45
+
+ExpressionStatement -> __;
+    # 46
+
+expression -> mutable __= expression
+    # 47
+
+expression -> mutable __+= expression
+    # 48
+
+expression -> mutable __-= expression
+    # 49
+
+expression -> mutable __*= expression
+    # 50
+
+expression -> mutable __/= expression
+    # 51
+
+expression -> mutable __++
+    # 52
+
+expression -> mutable __--
+    # 53
+
+expression -> simpleExpression
+    # 54
+
+simpleExpression -> simpleExpression __|| andExpression
+    # 55
+
+simpleExpression -> andExpression
+    # 56
+
+andExpression -> andExpression __&& relExpression
+    # 57
+
+andExpression -> relExpression
+    # 58
+
+relExpression -> sumExpression relop sumExpression
+    # 59
+
+relExpression -> sumExpression
+    # 60
+
+sumExpression -> sumExpression sumop term
+    # 61
+
+sumExpression -> term
+    # 62
+
+term -> term mulop unaryExpression
+    # 63
+
+term -> unaryExpression
+    # 64
+
+relop -> __<=
+    # 65
+
+relop -> __<
+    # 66
+
+relop -> __>
+    # 67
+
+relop -> __>=
+    # 68
+
+relop -> __==
+    # 69
+
+relop -> __!=
+    # 70
+
+sumop -> __+
+    # 71
+
+sumop -> __-
+    # 72
+
+mulop -> __*
+    # 73
+
+mulop -> __/
+    # 74
+
+mulop -> __%
+    # 75
+
+unaryExpression -> unaryop factor
+    # 76
+
+unaryExpression -> factor
+    # 77
+
+unaryop -> __-
+    # 78
+
+unaryop -> __*
+    # 79
+
+unaryop -> __&
+    # 80
+
+unaryop -> __!
+    # 81
+
+factor -> mutable
+    # 82
+
+factor -> immutable
+    # 83
+
+#=========================================mutalbe/immutable======================================================
+mutable -> __id
+    # 84
+    # return var_info
+
+mutable -> mutable __[ expression __]
+    # 85
+    # return var_info
+
+immutable -> __( expression __)
+    # 86
+
+immutable -> Call
+    # 87
+
+immutable -> constant
+    # 88
+
+Call -> __id __( args __)
+    # 89
+
+args -> argList
+    # 90
+
+args -> __eof
+    # 91
+
+argList -> argList __, expression
+    # 92
+
+argList -> expression
+    # 93
+
+constant -> __number
+    # 94
+    # type : int, val = number
+
+constant -> __true
+    # 95
+    # type : int, val = 1
+
+constant -> __false
+    # 96
+    # type : int, val = 0

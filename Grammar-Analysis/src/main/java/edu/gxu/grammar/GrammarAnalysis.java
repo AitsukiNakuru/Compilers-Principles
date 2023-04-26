@@ -1,7 +1,9 @@
 package edu.gxu.grammar;
 
+import edu.gxu.common.CategoryCodeEnum;
 import edu.gxu.common.LREnum;
 import edu.gxu.lexical.LexicalAnalysis;
+import edu.gxu.lexical.Token;
 
 
 import java.io.IOException;
@@ -16,15 +18,13 @@ public class GrammarAnalysis {
     AnalyzeTable analyzeTable = new AnalyzeTable();
     Integer index = 0;
 
-    public GrammarAnalysis(ArrayList<String> inputString) throws IOException, ClassNotFoundException {
-        for (String str : inputString) {
-            inputStack.addLast(str);
+    public GrammarAnalysis(ArrayList<Token> inputString) throws IOException, ClassNotFoundException {
+        for (Token token : inputString) {
+            inputStack.addLast(token.value);
         }
         inputStack.addLast(LREnum.Sharp.getString());
         stateStack.addLast(0);
         charStack.addLast(LREnum.Sharp.getString());
-        System.out.println(analysis());;
-        System.out.println("-----Grammar Analyze Done-----");
     }
 
     public boolean analysis() {
@@ -49,15 +49,16 @@ public class GrammarAnalysis {
             }
             System.out.println(analyzeStepList.get(analyzeStepList.size() - 1).toString());
         }
+
     }
 
     public boolean handleAction(String action) {
 
-        /**
-         * 移进
-         * 1. 根据状态栈顶和输入符号获取移进状态
-         * 2. 将移进状态加入状态栈
-         * 3. 将输入符号加入符号栈
+        /*
+          移进
+          1. 根据状态栈顶和输入符号获取移进状态
+          2. 将移进状态加入状态栈
+          3. 将输入符号加入符号栈
          */
         if (action.startsWith("Shift")) {
             AnalyzeStep analyzeStep = new AnalyzeStep(
@@ -73,14 +74,14 @@ public class GrammarAnalysis {
             // 3. 将输入符号加入符号栈
             charStack.addLast(Objects.requireNonNull(inputStack.pollFirst()));
         }
-        /**
-         * 归约
-         * 1. 根据状态栈顶与输入符号获取归约产生式
-         * 2. 状态栈弹出与产生式右边长度相等数量的状态
-         * 3. 符号栈弹出与产生式右边长度相等数量的符号
-         * 4. 根据状态栈顶与产生式左边的非终结符获取GoTo状态
-         * 5. 将GoTo状态加入状态栈
-         * 6. 将产生式左边的符号加入符号栈
+        /*
+          归约
+          1. 根据状态栈顶与输入符号获取归约产生式
+          2. 状态栈弹出与产生式右边长度相等数量的状态
+          3. 符号栈弹出与产生式右边长度相等数量的符号
+          4. 根据状态栈顶与产生式左边的非终结符获取GoTo状态
+          5. 将GoTo状态加入状态栈
+          6. 将产生式左边的符号加入符号栈
          */
         if (action.startsWith("Reduce")) {
             AnalyzeStep analyzeStep = new AnalyzeStep(
@@ -123,4 +124,11 @@ public class GrammarAnalysis {
         return sb.toString();
     }
 
+    public String parseToken(Token token) {
+        int code = token.categoryCode;
+        if (code == CategoryCodeEnum.Identifier.getCode()) {
+            return "id";
+        }
+        return "idk";
+    }
 }

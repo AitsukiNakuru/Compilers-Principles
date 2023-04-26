@@ -1,0 +1,49 @@
+S -> a c ( ) { A }
+A -> B A
+A -> ε
+B -> C
+B -> D
+B -> O
+B -> E
+B -> F
+F -> d e { A } f ( G ) ;	
+B -> H ;
+B -> I
+B -> { A }
+I -> a g J ;
+I -> h g J ;
+I -> i g J ;
+I -> b g J ;
+J -> ε
+J -> , g J
+J -> = L K
+K -> , g J
+K -> ε
+M -> *
+M -> /
+M -> +
+M -> %
+M -> -
+V -> j
+V -> k
+N -> <
+N -> l
+N -> >
+N -> m
+N -> n
+N -> o
+C -> p ( G )
+D -> q B
+E -> r ( I G ; H )
+O -> s ( G ) { A }
+G -> P N P
+P -> L
+L -> Q T
+T -> M Q
+T -> ε
+Q -> g
+Q -> t
+H -> g U
+U -> V
+U -> = R
+R -> L

@@ -16,8 +16,8 @@ public class Util {
 
     static {
         try {
-            //init("Grammar.txt", "NonTerminal.txt", "Terminal.txt");
-            String test = "Test-First-1/";
+            //init("Grammar.txt", "NonTerminal.txt.txt", "Terminal.txt");
+            String test = "Test-Follow-2/";
             init(test + "Grammar.txt", test + "NonTerminal.txt", test + "Terminal.txt");
         } catch (IOException e) {
             throw new RuntimeException(e);

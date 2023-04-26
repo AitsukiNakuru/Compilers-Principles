@@ -11,9 +11,7 @@ import java.util.Arrays;
 
 public class Main {
     public static void main(String[] args) throws IOException, ClassNotFoundException {
-        String[] str = FileUtil.readTxtFile("Test-First-1/Input.txt");
-        ArrayList<String> input = new ArrayList<>(Arrays.asList(str[0].split("")));
-        GrammarAnalysis grammarAnalysis = new GrammarAnalysis(input);
-        grammarAnalysis.analysis();
+        //new Gui();
+        AnalyzeTable analyzeTable = new AnalyzeTable();
     }
 }

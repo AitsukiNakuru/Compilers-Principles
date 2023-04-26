@@ -1,0 +1,31 @@
+Start' ::= Start
+
+Start ::= FunctionDeclaration
+Start :: = VariableDeclaration
+
+VariableDeclaration ::= DataType VariableList ;
+
+VariableList :: = Variable ||| Variable , VariableList
+Variable ::= identifier ||| VariableDefine
+VariableDefine ::= identifier Assignment ||| identifier Assignment ;
+Assignment ::= = AssignmentSource
+AssignmentSource ::= Const ||| identifier
+
+Const ::= NumberConst ||| stringConst ||| charConst
+NumberConst ::= integerConst ||| floatConst ||| scientificConst
+
+DataType ::= int Array ||| void ||| double Array ||| float Array ||| char Array ||| String Array
+Array ::= [ integerConst ] ||| [ integerConst ] Array ||| ε
+
+FunctionDeclaration ::= DataType FunctionName ( ParameterList ) ; ||| DataType FunctionName ( ParameterList ) { FunctionContent }
+FunctionName ::= identifier
+ParameterList ::= Parameter | Parameter , ParameterList
+Parameter ::= DataType identifier
+
+FunctionContent ::= VariableDeclaration ||| VariableDefine ||| ConditionBranch ||| Circulate ||| FunctionCall
+ConditionBranch ::= if ( Condition ) {  FunctionContent }
+Condition ::= ( Condition ) ||| Condition LogicalOperator Condition
+
+
+
+

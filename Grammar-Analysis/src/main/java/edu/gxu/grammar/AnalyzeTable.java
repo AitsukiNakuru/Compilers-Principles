@@ -14,8 +14,6 @@ public class AnalyzeTable {
     public int gotoLength;
     public String[] actionTitleList;
     public String[] gotoTitleList;
-    public String[][] actionTable;
-    public int[][] gotoTable;
     public HashMap<Integer, HashMap<String, String>> analyzeMap;
     public HashMap<Integer, HashMap<String, Integer>> goMap;
 
@@ -25,8 +23,7 @@ public class AnalyzeTable {
         System.out.println(dfa);
         System.out.println(goMapToString());
         initAnalyzeMap();
-        //initAnalyzeTable();
-        System.out.println("-----Generate Analyze Done-----");
+        System.out.println("11");
     }
 
 
@@ -35,8 +32,8 @@ public class AnalyzeTable {
      * 初始化表头
      */
     public void initTitleList() {
-        // 傻逼张志路！！！
         // 这里和张志路的不一样，待验证
+        // 还是用我的吧
         this.actionTitleList = new String[Util.terminalSet.size() + 1];
         this.gotoTitleList = new String[Util.nonTerminalSet.size()];
         int i = 0, j = 0;
@@ -80,20 +77,30 @@ public class AnalyzeTable {
     }
 
     public void addState(int lastState, String path, HashSet<LRItem> originalLRItemSet) throws IOException, ClassNotFoundException {
+        System.out.println(dfa.lrItemSetList.size());
         LRItemSet lrItemSet = new LRItemSet(0);
         // deepCopy，很重要！
         lrItemSet.addLRItem(originalLRItemSet);
         lrItemSet.lrItems.forEach(LRItem::moveDotToNext);
-        for (LRItem lrItem : Util.filterLRItemSetByReductionState(lrItemSet.lrItems, false)) {
-            HashSet<String> firstBeta = new HashSet<>();
-            fillFirstBeta(firstBeta, lrItem);
-            ArrayList<Production> productionList = Util.getProductionListByLeft(lrItem.getCharAfterDot());
-            fillLRItemSetByFirstBetaAndLRItem(firstBeta, lrItemSet, lrItem);
-        }
+        int originalSize = lrItemSet.lrItems.size();
+        do {
+            originalSize = lrItemSet.lrItems.size();
+            for (LRItem lrItem : Util.filterLRItemSetByReductionState(lrItemSet.lrItems, false)) {
+                HashSet<String> firstBeta = new HashSet<>();
+                fillFirstBeta(firstBeta, lrItem);
+                ArrayList<Production> productionList = Util.getProductionListByLeft(lrItem.getCharAfterDot());
+                fillLRItemSetByFirstBetaAndLRItem(firstBeta, lrItemSet, lrItem);
+            }
+        } while (originalSize != lrItemSet.lrItems.size());
+
+
         lrItemSet.id = dfa.size();
         if (fillGoMap(lrItemSet, lastState, path)) {
             dfa.addLRItemSet(lrItemSet);
+        } else {
+            return;
         }
+
         for (String go : lrItemSet.getAllCharAfterDot()) {
             HashSet<LRItem> set = lrItemSet.getLRItemSet(go);
             addState(lrItemSet.id, go, set);
@@ -172,13 +179,8 @@ public class AnalyzeTable {
         }
 
     }
-    public void initAnalyzeTable() {
 
-        createAnalyzeTable();
-    }
-    public void createAnalyzeTable() {
 
-    }
     public void initAnalyzeMap() {
         analyzeMap = new HashMap<>();
         // ①对每一个项目集Ii，在分析表中记入状态i的分析动作表：
