@@ -1,4 +1,4 @@
-package edu.gxu.lexical;
+package edu.gxu.yanshou;
 
 import java.io.Serial;
 import java.util.HashMap;
@@ -15,7 +15,7 @@ public class Util {
             "union", "const", "float", "short", "unsigned",
             "continue", "for", "signed", "void", "default",
             "goto", "sizeof", "volatile", "do", "if",
-            "while", "static", "String"
+            "while", "static", "String","int36"
     };
     /**
      * 关键字种别码 1xx
@@ -53,7 +53,7 @@ public class Util {
             "++", "--",
             "<", "<=", ">", ">=", "==", "!=",
             "&&", "||", "!", "~", "&", "|", "^", ">>", "<<",
-            "+=", "-=", "*=", "/=", "%=", "&=", " ^=", "|=", "<<=", ">>="
+            "+=", "-=", "*=", "/=", "%=", "&=", " ^=", "|=", "<<=", ">>=","."
     };
     /**
      * 运算符种别码 2xx
@@ -174,6 +174,20 @@ public class Util {
      */
     public static boolean isAlpha(char ch) {
         return ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') );
+    }
+
+
+
+    public static boolean isLowerAlphaOrUnderline(char ch) {
+        return ((ch >= 'a' && ch <= 'z') || ch == '_');
+    }
+
+    public static boolean isBigAlpha(char ch) {
+        return (ch >= 'A' && ch <= 'Z');
+    }
+
+    public static boolean isLowerAlpha(char ch) {
+        return (ch >= 'a' && ch <= 'z');
     }
     /**
      * 是否为字母或下划线
@@ -311,17 +325,18 @@ public class Util {
                 }
             }
             case 2-> {
+                if(Util.isBigAlpha(ch)) {
+                    return 7;
+                }
                 if (Util.isDigit(ch)) {
                     return 2;
-                }
-                if (ch == 'e' || ch == 'E') {
-                    return 5;
                 }
                 if (ch == '.') {
                     return 3;
                 }
             }
             case 3-> {
+
                 if (Util.isDigit(ch)) {
                     return 4;
                 }
@@ -348,6 +363,9 @@ public class Util {
                 }
             }
             case 7-> {
+                if(Util.isBigAlpha(ch)) {
+                    return 7;
+                }
                 if (Util.isDigit(ch)) {
                     return 7;
                 }

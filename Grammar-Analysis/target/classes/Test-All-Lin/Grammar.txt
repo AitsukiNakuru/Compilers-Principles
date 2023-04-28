@@ -1,5 +1,5 @@
 S' -> S
-S -> Sentence S | Sentence
+S -> ε | Sentence S | Sentence
 Sentence -> ForSentence | Declaration ; | VariableAssignList ; | SelfCalculation ; | Function
 Declaration -> VariableType VariableAssignList
 VariableType -> int | int36
@@ -10,7 +10,7 @@ Condition -> ConditionItem BooleanOperator ConditionItem
 ConditionItem -> identifier | const
 BooleanOperator -> < | <= | > | >= | == | !=
 Calculation -> CalculationItem CalculationOperator CalculationItemList
-CalculationItemList -> Calculation CalculationOperator CalculationItemList
+CalculationItemList -> CalculationItem CalculationOperator CalculationItemList | CalculationItem
 CalculationItem -> identifier | const
 CalculationOperator -> + | - | * | / | %
 SelfCalculation -> identifier SelfCalculationOperator

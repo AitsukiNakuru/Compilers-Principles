@@ -9,6 +9,7 @@ public enum CategoryCodeEnum {
     CharConst(5),
     Error(-1),
     Comment(6),
+    Int36Const(7),
     ;
 
 

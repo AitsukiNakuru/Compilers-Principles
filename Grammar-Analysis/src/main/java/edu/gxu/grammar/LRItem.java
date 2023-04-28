@@ -40,7 +40,12 @@ public class LRItem implements Serializable {
     public String getCharAfterDot() {
         return production.right.get(dotIndex);
     }
-
+    public boolean isProductEpsilon() {
+        if (production.right.size() == 1 && production.getRightFirstChar().equals(LREnum.Epsilon.getString())) {
+            return true;
+        }
+        return false;
+    }
     /**
      * 当前LR项目是否为归约状态，点在最右边的状态
      * @return 当前LR项目是否为归约状态

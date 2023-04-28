@@ -4,7 +4,6 @@ import edu.gxu.common.LREnum;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -33,10 +32,10 @@ public class AnalyzeTable {
     public void initTitleList() {
         // 这里和张志路的不一样，待验证
         // 还是用我的吧
-        this.actionTitleList = new String[Util.terminalSet.size() + 1];
-        this.gotoTitleList = new String[Util.nonTerminalSet.size()];
+        this.actionTitleList = new String[GrammarUtil.terminalSet.size() + 1];
+        this.gotoTitleList = new String[GrammarUtil.nonTerminalSet.size()];
         int i = 0, j = 0;
-        for (String terminal : Util.terminalSet) {
+        for (String terminal : GrammarUtil.terminalSet) {
             if (!terminal.equals(LREnum.Epsilon.getString())) {
                 actionTitleList[i] = terminal;
                 i += 1;
@@ -44,7 +43,7 @@ public class AnalyzeTable {
         }
         actionTitleList[i] = LREnum.Sharp.getString();
 
-        for (String notTerminal : Util.nonTerminalSet) {
+        for (String notTerminal : GrammarUtil.nonTerminalSet) {
             gotoTitleList[j] = notTerminal;
             j += 1;
         }
@@ -60,12 +59,13 @@ public class AnalyzeTable {
     public void createDFA() throws IOException, ClassNotFoundException {
         this.dfa = new DFA();
         LRItemSet startLRItemSet = new LRItemSet(0);
-        startLRItemSet.addLRItem(new LRItem(Util.getProductionListByLeft(LREnum.StartChar.getString()).get(0), LREnum.Sharp.getString(), 0));
+        startLRItemSet.addLRItem(new LRItem(GrammarUtil.getProductionListByLeft(LREnum.StartChar.getString()).get(0), LREnum.Sharp.getString(), 0));
+        // 求闭包
         int originalSize = startLRItemSet.lrItems.size();
         do {
             originalSize = startLRItemSet.lrItems.size();
             // 先将所有处于归约状态的项目过滤 = 过滤所有点在最后的项目
-            for (LRItem lrItem : Util.filterLRItemSetByReductionState(startLRItemSet.lrItems, false)) {
+            for (LRItem lrItem : GrammarUtil.filterLRItemSetByReductionState(startLRItemSet.lrItems, false)) {
                 // 若项目[A→α·Bβ, a]∈closure(I)，且B→γ是文法的产生式，β∈V*
                 // 求First(βa)
                 HashSet<String> firstBeta = new HashSet<>();
@@ -73,9 +73,10 @@ public class AnalyzeTable {
                 // 则对任何b∈FIRST(βa)有[B→·γ, b]∈closure(I)；
                 fillLRItemSetByFirstBetaAndLRItem(firstBeta, startLRItemSet, lrItem);
             }
+            // 再对所有可以产生空串的项目处理？
         } while (originalSize != startLRItemSet.lrItems.size());
         dfa.lrItemSetList.add(startLRItemSet);
-        HashMap<String, HashSet<LRItem>> accessibleMap = Util.getAccessibleMap(startLRItemSet);
+        HashMap<String, HashSet<LRItem>> accessibleMap = GrammarUtil.getAccessibleMap(startLRItemSet);
         for (String key : accessibleMap.keySet()) {
             addState(startLRItemSet.id, key, accessibleMap.get(key));
         }
@@ -90,10 +91,10 @@ public class AnalyzeTable {
         int originalSize = lrItemSet.lrItems.size();
         do {
             originalSize = lrItemSet.lrItems.size();
-            for (LRItem lrItem : Util.filterLRItemSetByReductionState(lrItemSet.lrItems, false)) {
+            for (LRItem lrItem : GrammarUtil.filterLRItemSetByReductionState(lrItemSet.lrItems, false)) {
                 HashSet<String> firstBeta = new HashSet<>();
                 fillFirstBeta(firstBeta, lrItem);
-                ArrayList<Production> productionList = Util.getProductionListByLeft(lrItem.getCharAfterDot());
+                ArrayList<Production> productionList = GrammarUtil.getProductionListByLeft(lrItem.getCharAfterDot());
                 fillLRItemSetByFirstBetaAndLRItem(firstBeta, lrItemSet, lrItem);
             }
         } while (originalSize != lrItemSet.lrItems.size());
@@ -106,7 +107,7 @@ public class AnalyzeTable {
             return;
         }
 
-        HashMap<String, HashSet<LRItem>> accessibleMap = Util.getAccessibleMap(lrItemSet);
+        HashMap<String, HashSet<LRItem>> accessibleMap = GrammarUtil.getAccessibleMap(lrItemSet);
         for (String key : accessibleMap.keySet()) {
             addState(lrItemSet.id, key, accessibleMap.get(key));
         }
@@ -143,12 +144,12 @@ public class AnalyzeTable {
     public void fillLRItemSetByFirstBetaAndLRItem(HashSet<String> firstBeta, LRItemSet lrItemSet, LRItem lrItem) {
         // 获取点后面的那个符号
         String charAfterDot = lrItem.getCharAfterDot();
-        if (Util.isNonTerminal(charAfterDot)) {
-            for (Production production : Util.getProductionListByLeft(charAfterDot)) {
+        if (GrammarUtil.isNonTerminal(charAfterDot)) {
+            for (Production production : GrammarUtil.getProductionListByLeft(charAfterDot)) {
                 for (String first : firstBeta) {
-                    if (!Util.isEmptyChar(first)) {
+                    if (!GrammarUtil.isEmptyChar(first)) {
                         LRItem newLRItem;
-                        if (Util.isEmptyChar(production.getRightFirstChar())) {
+                        if (GrammarUtil.isEmptyChar(production.getRightFirstChar())) {
                             newLRItem = new LRItem(production, first, 1);
                         } else {
                             newLRItem = new LRItem(production, first, 0);
@@ -173,7 +174,7 @@ public class AnalyzeTable {
         } else {
             boolean flag = true;
             for (int i = lrItem.dotIndex + 1; i <= lrItem.production.getLastIndex(); i++) {
-                HashSet<String> tempFirst = Util.getFirstSetByChar(lrItem.getRightByIndex(i));
+                HashSet<String> tempFirst = GrammarUtil.getFirstSetByChar(lrItem.getRightByIndex(i));
                 firstBeta.addAll(tempFirst);
                 if (!tempFirst.contains(LREnum.Epsilon.getString())) {
                     flag = false;
@@ -185,12 +186,12 @@ public class AnalyzeTable {
             }
         }*/
         // 点后面是终结符直接不管
-        if (Util.isTerminal(lrItem.getCharAfterDot())) {
+        if (GrammarUtil.isTerminal(lrItem.getCharAfterDot())) {
             return;
         }
         for (int i = lrItem.dotIndex + 1; i <= lrItem.production.getLastIndex(); i++) {
 
-            HashSet<String> tempFirst = Util.getFirstSetByChar(lrItem.getRightByIndex(i));
+            HashSet<String> tempFirst = GrammarUtil.getFirstSetByChar(lrItem.getRightByIndex(i));
             firstBeta.addAll(tempFirst);
             // 如果tempFirst不包含空，则不继续向后查找
             if (!tempFirst.contains(LREnum.Epsilon.getString())) {
@@ -213,7 +214,7 @@ public class AnalyzeTable {
         // ② 若go(Ii, A)=Ij, 且A∈VN, 则goto[i, A]=j;
         for (Integer mainKey : goMap.keySet()) {
             for (String path : goMap.get(mainKey).keySet()) {
-                if (Util.isNonTerminal(path)) {
+                if (GrammarUtil.isNonTerminal(path)) {
                     analyzeMap.get(mainKey).put(path, "GoTo" + goMap.get(mainKey).get(path));
                 }
             }
@@ -224,7 +225,7 @@ public class AnalyzeTable {
         for (LRItem lrItem : lrItemSet.lrItems) {
             // 若[A→α·, a]∈Ii, 且A→α为文法第j个产生式,则：action[i, a]=rj;
             if (lrItem.isReductionState()) {
-                analyzeMap.get(lrItemSet.id).put(lrItem.lookahead, "Reduce" + Util.getIndexByProduction(lrItem.production));
+                analyzeMap.get(lrItemSet.id).put(lrItem.lookahead, "Reduce" + GrammarUtil.getIndexByProduction(lrItem.production));
             }
             // 若[A→α·aβ, b]∈Ii, 而go(Ii,a)=Ij, 则: action[i, a] =Sj;
             else {

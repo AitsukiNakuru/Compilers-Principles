@@ -1,19 +1,21 @@
-package edu.gxu.lexical;
+package edu.gxu.yanshou;
 
 import edu.gxu.common.CategoryCodeEnum;
-import edu.gxu.common.TokenTypeEnum;
+import edu.gxu.common.TokenType;
 
+import javax.swing.*;
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class LexicalAnalysis {
+public class Analysis {
     String originText;  // 读入的测试样例文本
     ArrayList<Token> tokenList = new ArrayList<>();
 
 
-    public LexicalAnalysis(String originText) {
+    public Analysis(String originText) {
         this.originText = originText;
     }
 
@@ -130,7 +132,7 @@ public class LexicalAnalysis {
             char ch = getNextChar();
             StringBuilder matches = new StringBuilder();
             // 小写字母或者下划线开头，关键字或者标识符
-            if (LexicalUtil.isLowerAlphaOrUnderline(ch)) {
+            if (Util.isLowerAlphaOrUnderline(ch)) {
                 matches.append(ch);
                 // 一直读取直到不是小写字母或者下划线或者数字为止
                 while (canGetNextChar()) {
@@ -139,15 +141,15 @@ public class LexicalAnalysis {
 //                        backIndex();
 //                        break;
 //                    }
-                    if (!LexicalUtil.isLowerAlphaOrUnderline(ch) && !LexicalUtil.isDigit(ch)) {
+                    if (!Util.isLowerAlphaOrUnderline(ch) && !Util.isDigit(ch)) {
                         backIndex();
                         break;
                     }
                     matches.append(ch);
                 }
                 // 判断是关键字还是标识符
-                if (LexicalUtil.isKeyword(matches.toString())) {
-                    addToken(matches, TokenTypeEnum.Keyword.getType(), LexicalUtil.getKeywordCode(matches));
+                if (Util.isKeyword(matches.toString())) {
+                    addToken(matches, TokenType.Keyword.getType(), Util.getKeywordCode(matches));
                     if (matches.toString().equals("int36")) {
                         System.out.println("int36:" + matches);
                         isInt36Area = true;
@@ -161,43 +163,43 @@ public class LexicalAnalysis {
                     if (isInt36Identifier(matches.toString())) {
                         isInt36Area = true;
                     }
-                    addToken(matches, TokenTypeEnum.Identifier.getType(), 0);
+                    addToken(matches, TokenType.Identifier.getType(), 0);
                 }
                 continue;
             }
             // 大写字母开头的int36常量
-            if (LexicalUtil.isBigAlpha(ch)) {
+            if (Util.isBigAlpha(ch)) {
                 matches.append(ch);
                 // 一直读取直到不是小写字母或者数字为止
                 while (canGetNextChar()) {
                     ch = getNextChar();
-                    if (!LexicalUtil.isBigAlpha(ch) && !LexicalUtil.isDigit(ch)) {
+                    if (!Util.isBigAlpha(ch) && !Util.isDigit(ch)) {
                         backIndex();
                         break;
                     }
                     matches.append(ch);
                 }
-                addToken(matches, TokenTypeEnum.Int36Const.getType(), 0);
+                addToken(matches, TokenType.Int36Const.getType(), 0);
                 continue;
             }
             // 数字开头，常量
-            if (LexicalUtil.isDigit(ch)) {
+            if (Util.isDigit(ch)) {
                 int state = 1;
                 int constCode = 0;
-                String type = TokenTypeEnum.NumberConst.getType();
+                String type = TokenType.NumberConst.getType();
                 // 一直读取直到与数字无关的字符
-//                while ((!isEndChar(ch)) && (GrammarUtil.isDigit(ch) || GrammarUtil.isDigitChar(ch))) {
-                while ((LexicalUtil.isDigit(ch) || LexicalUtil.isBigAlpha(ch))) {
+//                while ((!isEndChar(ch)) && (Util.isDigit(ch) || Util.isDigitChar(ch))) {
+                while ((Util.isDigit(ch) || Util.isBigAlpha(ch))) {
                     // 如果不是整数则改变数字类型
                     if (ch == '.') {
                         constCode = CategoryCodeEnum.FloatConst.getCode();
                     }
-                    if (LexicalUtil.isBigAlpha(ch) || isInt36Area) {//含有大写字母，是int36类型。
+                    if (Util.isBigAlpha(ch) || isInt36Area) {//含有大写字母，是int36类型。
                         constCode = CategoryCodeEnum.Int36Const.getCode();
-                        type = TokenTypeEnum.Int36Const.getType();
+                        type = TokenType.Int36Const.getType();
                     }
 
-                    int nextState = LexicalUtil.getNextDigitState(state, ch);
+                    int nextState = Util.getNextDigitState(state, ch);
                     state = nextState;
                     matches.append(ch);
                     if (nextState == 8) {
@@ -209,14 +211,14 @@ public class LexicalAnalysis {
                     } else {
                         break;
                     }
-//                    if (GrammarUtil.isBigAlpha(ch)) {//含有大写字母，是int36类型。
+//                    if (Util.isBigAlpha(ch)) {//含有大写字母，是int36类型。
 //                        constCode = CategoryCodeEnum.Int36Const.getCode();
-//                        type =TokenTypeEnum.Int36Const.getType();
+//                        type =TokenType.Int36Const.getType();
 //
 //                    }
                 }
                 if (isInt36Area) {
-                    type = TokenTypeEnum.Int36Const.getType();
+                    type = TokenType.Int36Const.getType();
                 }
                 // 判断是否为非终态
                 boolean isError = state == 3 || state == 5 || state == 6 || state == 8;
@@ -235,14 +237,14 @@ public class LexicalAnalysis {
                     if (canGetNextChar()) {
                         ch = getNextChar();
                         matches.append(ch);
-                        state = LexicalUtil.getNextCharState(state, ch);
+                        state = Util.getNextCharState(state, ch);
                     } else
                         break;
                 }
                 if (state == 5) {
-                    addToken(matches, TokenTypeEnum.CharConst.getType(), CategoryCodeEnum.CharConst.getCode());
+                    addToken(matches, TokenType.CharConst.getType(), CategoryCodeEnum.CharConst.getCode());
                 } else {
-                    addToken(matches, TokenTypeEnum.Error.getType(), CategoryCodeEnum.Error.getCode());
+                    addToken(matches, TokenType.Error.getType(), CategoryCodeEnum.Error.getCode());
                 }
                 continue;
             }
@@ -258,7 +260,7 @@ public class LexicalAnalysis {
 //                        isError = true;
 //                        break;
 //                    }
-                    int nextState = LexicalUtil.getNextStringState(state, ch);
+                    int nextState = Util.getNextStringState(state, ch);
                     // 可能'\\'需要特判，不太清楚。
                     // 经过验证，发现不需要特判
                     if (state == 4) {
@@ -273,9 +275,9 @@ public class LexicalAnalysis {
                     state = nextState;
                 }
                 if (state == 5) {
-                    addToken(matches, TokenTypeEnum.StringConst.getType(), CategoryCodeEnum.StringConst.getCode());
+                    addToken(matches, TokenType.StringConst.getType(), CategoryCodeEnum.StringConst.getCode());
                 } else {
-                    addToken(matches, TokenTypeEnum.Error.getType(), CategoryCodeEnum.Error.getCode());
+                    addToken(matches, TokenType.Error.getType(), CategoryCodeEnum.Error.getCode());
                 }
                 continue;
             }
@@ -283,7 +285,7 @@ public class LexicalAnalysis {
             if (ch == '/') {
                 matches.append(ch);
                 if (!canGetNextChar()) {
-                    addToken(matches, TokenTypeEnum.Operator.getType(), LexicalUtil.getOperatorCode(matches.toString()));
+                    addToken(matches, TokenType.Operator.getType(), Util.getOperatorCode(matches.toString()));
                 } else {
                     ch = getNextChar();
                     int state = 3;
@@ -300,12 +302,12 @@ public class LexicalAnalysis {
                                         getNextLine();
                                         continue;
                                     }
-                                    addToken(matches, TokenTypeEnum.Error.getType(), CategoryCodeEnum.Error.getCode());
+                                    addToken(matches, TokenType.Error.getType(), CategoryCodeEnum.Error.getCode());
                                     break;
                                 }
                                 ch = getNextChar();
                                 matches.append(ch);
-                                state = LexicalUtil.getNextCommentState(state, ch);
+                                state = Util.getNextCommentState(state, ch);
                             }
                         }
                         // 单行注释
@@ -316,7 +318,7 @@ public class LexicalAnalysis {
                                 ch = getNextChar();
                                 matches.append(ch);
                             }
-                            addToken(matches, TokenTypeEnum.Comment.getType(), CategoryCodeEnum.Comment.getCode());
+                            addToken(matches, TokenType.Comment.getType(), CategoryCodeEnum.Comment.getCode());
                             continue;
                         }
                         // 操作符/=
@@ -326,41 +328,41 @@ public class LexicalAnalysis {
                             } else {
                                 backIndex();
                             }
-                            addToken(matches, TokenTypeEnum.Operator.getType(), LexicalUtil.getOperatorCode(matches.toString()));
+                            addToken(matches, TokenType.Operator.getType(), Util.getOperatorCode(matches.toString()));
                             continue;
                         }
                     }
                     if (state != 5) {
                         break;
                     }
-                    addToken(matches, TokenTypeEnum.Comment.getType(), CategoryCodeEnum.Comment.getCode());
+                    addToken(matches, TokenType.Comment.getType(), CategoryCodeEnum.Comment.getCode());
                 }
 
                 continue;
             }
             // 操作符开头，操作符长度最多为3，只需要判断当前字符和下两个字符
-            if (LexicalUtil.isOperator(String.valueOf(ch))) {
+            if (Util.isOperator(String.valueOf(ch))) {
                 String optTest3 = "", optTest2 = "";
                 if ((index + 2) < charList.length)
                     optTest3 = "" + ch + charList[index + 1] + charList[index + 2];
                 if ((index + 1) < charList.length)
                     optTest2 = "" + charList[index] + charList[index + 1];
-                if (index + 2 < charList.length && LexicalUtil.isOperator(String.valueOf(optTest3))) {//还有三个字符，看这三个是否能构成操作符。
+                if (index + 2 < charList.length && Util.isOperator(String.valueOf(optTest3))) {//还有三个字符，看这三个是否能构成操作符。
                     index += 2;
                     matches.append(optTest3);
-                } else if (index + 1 < charList.length && LexicalUtil.isOperator(String.valueOf(optTest2))) {//还有三个字符，看这三个是否能构成操作符。
+                } else if (index + 1 < charList.length && Util.isOperator(String.valueOf(optTest2))) {//还有三个字符，看这三个是否能构成操作符。
                     index += 1;
                     matches.append(optTest2);
                 } else {
                     matches.append(ch);
                 }
-                addToken(matches, TokenTypeEnum.Operator.getType(), LexicalUtil.getOperatorCode(matches.toString()));
+                addToken(matches, TokenType.Operator.getType(), Util.getOperatorCode(matches.toString()));
                 continue;
             }
-            /*if (GrammarUtil.isOperator(String.valueOf(ch))) {
+            /*if (Util.isOperator(String.valueOf(ch))) {
                 matches.append(ch);
                 // 先判断是否可以接self，再判断一个字符是否和self相同
-                if (GrammarUtil.canFollowSelf(ch)&&ch!='=') {//只有ch!="="才能进去，ch=='='将由下一个if处理。
+                if (Util.canFollowSelf(ch)&&ch!='=') {//只有ch!="="才能进去，ch=='='将由下一个if处理。
                     //// 否则===会进canFollowSelf和canFollowEquals的if语句里面。可能会被判为操作符，。
                     char self = ch;
                     if (canGetNextChar()) {
@@ -373,7 +375,7 @@ public class LexicalAnalysis {
                     }
                 }
                 // 先判断是否可以接等号，在判断下一个字符是否为等号
-                if (GrammarUtil.canFollowEquals(ch)) {
+                if (Util.canFollowEquals(ch)) {
                     if (canGetNextChar()) {
                         ch = getNextChar();
                         if (ch == '=') {
@@ -383,13 +385,13 @@ public class LexicalAnalysis {
                         }
                     }
                 }
-                addToken(matches, TokenTypeEnum.Operator.getType(), GrammarUtil.getOperatorCode(matches.toString()));
+                addToken(matches, TokenType.Operator.getType(), Util.getOperatorCode(matches.toString()));
                 continue;
             }*/
             // 判断是否为界符，界符长度为1，可以直接判断
-            if (LexicalUtil.isDelimiter(String.valueOf(ch))) {
+            if (Util.isDelimiter(String.valueOf(ch))) {
                 matches.append(ch);
-                addToken(matches, TokenTypeEnum.Delimiter.getType(), LexicalUtil.getDelimiterCode(matches.toString()));
+                addToken(matches, TokenType.Delimiter.getType(), Util.getDelimiterCode(matches.toString()));
                 if (matches.toString().equals(";")) {
                     System.out.println("1" + matches);
                     isInt36Area = false;
@@ -399,16 +401,16 @@ public class LexicalAnalysis {
             }
             // 剩下的是非法情况
             else {
-                if (!LexicalUtil.isOtherChar(ch)) {
+                if (!Util.isOtherChar(ch)) {
                     matches.append(ch);
-                    addToken(matches, TokenTypeEnum.Error.getType(), CategoryCodeEnum.Error.getCode());
+                    addToken(matches, TokenType.Error.getType(), CategoryCodeEnum.Error.getCode());
                     continue;
                 }
             }
         }
     }
 
-    public ArrayList<Token> analyze() {
+    public List<Token> analyze() {
         init();
         while (canGetNextLine()) {
             getNextLine();

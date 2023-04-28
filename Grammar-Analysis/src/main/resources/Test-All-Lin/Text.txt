@@ -1,0 +1,9 @@
+int main(){
+    int36 a = A7,b = 5TU, z = 0;
+    for(int36 i = 0;i < 5T; i++) {
+        for (int36 j = 0; j < 6T; j++) {
+            a++;
+	        z = z + 1;
+        }
+    }
+}

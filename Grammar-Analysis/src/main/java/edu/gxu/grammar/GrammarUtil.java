@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.*;
 
 
-public class Util {
+public class GrammarUtil {
     static public HashSet<String> nonTerminalSet = new HashSet<>();
     static public HashSet<String> terminalSet = new HashSet<>();
     static ArrayList<Production> productionList = new ArrayList<>();
@@ -363,9 +363,9 @@ public class Util {
     }
 
     /**
-     * 过滤LR项目族的产生式列表，过滤条件为LR项目是否为归约状态
+     * 过滤LR项目族的LR项目列表，过滤条件为LR项目是否为归约状态
      *
-     * @param lrItemSet LR项目族的产生式列表
+     * @param lrItemSet LR项目族的LR项目列表
      * @param flag      是否为归约状态
      * @return 过滤后的LR项目列表
      */
@@ -376,6 +376,25 @@ public class Util {
                 result.add(lrItem);
             }
             if (!flag && !lrItem.isReductionState()) {
+                result.add(lrItem);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * 过滤LR项目族的产生式列表，过滤条件为LR项目的产生式是否仅产生空串
+     * @param lrItemSet LR项目族的LR项目列表
+     * @param flag 是否仅产生空串
+     * @return 过滤后的LR项目族的LR项目列表
+     */
+    static public HashSet<LRItem> filterLRItemSetByProductEpsilon(HashSet<LRItem> lrItemSet, boolean flag) {
+        HashSet<LRItem> result = new HashSet<>();
+        for (LRItem lrItem : lrItemSet) {
+            if (flag && lrItem.isProductEpsilon()) {
+                result.add(lrItem);
+            }
+            if (!flag && !lrItem.isProductEpsilon()) {
                 result.add(lrItem);
             }
         }

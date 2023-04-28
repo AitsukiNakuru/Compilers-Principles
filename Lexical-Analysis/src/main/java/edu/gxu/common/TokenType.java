@@ -5,6 +5,7 @@ public enum TokenType {
     Operator("Operator"),
     Identifier("IdentifierHandle"),
     NumberConst("NumberConst"),
+    Int36Const("Int36Const"),
     StringConst("StringConst"),
     CharConst("CharConst"),
     Comment("Comment"),

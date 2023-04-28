@@ -2,6 +2,7 @@ package edu.gxu.grammar;
 
 import edu.gxu.common.CategoryCodeEnum;
 import edu.gxu.common.LREnum;
+import edu.gxu.common.TokenTypeEnum;
 import edu.gxu.lexical.LexicalAnalysis;
 import edu.gxu.lexical.Token;
 
@@ -19,12 +20,12 @@ public class GrammarAnalysis {
     Integer index = 0;
 
     public GrammarAnalysis(ArrayList<Token> inputString) throws IOException, ClassNotFoundException {
-        testInit(inputString);
-    }
 
-    private void testInit(ArrayList<Token> inputString) {
+        init(inputString);
+    }
+    private void init(ArrayList<Token> inputString) throws IOException, ClassNotFoundException {
         for (Token token : inputString) {
-            inputStack.addLast(token.value);
+            inputStack.addLast(parseToken(token));
         }
         inputStack.addLast(LREnum.Sharp.getString());
         stateStack.addLast(0);
@@ -102,7 +103,7 @@ public class GrammarAnalysis {
                 "Reduce", " ", action, " ");
             // 1. 根据状态栈顶与输入符号获取归约产生式
             int productionIndex = Integer.parseInt(action.substring(6));
-            Production production = Util.productionList.get(productionIndex);
+            Production production = GrammarUtil.productionList.get(productionIndex);
             analyzeStep.production = String.valueOf(production);
             // 2. 状态栈弹出与产生式右边长度相等数量的状态
             batchPollLast(stateStack, production.right.size());
@@ -136,10 +137,21 @@ public class GrammarAnalysis {
     }
 
     public String parseToken(Token token) {
-        int code = token.categoryCode;
-        if (code == CategoryCodeEnum.Identifier.getCode()) {
-            return "id";
-        }
-        return "idk";
+        return switch (Objects.requireNonNull(TokenTypeEnum.getTypeByToken(token))) {
+            case Keyword -> token.value;
+            case Operator -> token.value;
+            case Identifier -> "identifier";
+            case NumberConst -> "const";
+            case Int36Const -> "const";
+            case StringConst -> "const";
+            case CharConst -> "const";
+            case Comment -> null;
+            case Delimiter -> token.value;
+            case Error -> null;
+        };
+    }
+
+    public ArrayList<AnalyzeStep> getAnalyzeStepList() {
+        return analyzeStepList;
     }
 }

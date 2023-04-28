@@ -1,5 +1,7 @@
 package edu.gxu;
 
+import edu.gxu.grammar.AnalyzeStep;
+import edu.gxu.grammar.GrammarAnalysis;
 import edu.gxu.lexical.LexicalAnalysis;
 import edu.gxu.lexical.Token;
 import mdlaf.MaterialLookAndFeel;
@@ -7,15 +9,17 @@ import mdlaf.MaterialLookAndFeel;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Gui extends JFrame {
     public Gui() {
-        try {
+        /*try {
             UIManager.setLookAndFeel(new MaterialLookAndFeel());
         } catch (UnsupportedLookAndFeelException e) {
             e.printStackTrace();
-        }
+        }*/
         getContentPane().setForeground(Color.WHITE);
         setTitle("语法分析器");    //设置显示窗口标题
         setSize(1600, 900);    //设置窗口显示尺寸
@@ -80,10 +84,21 @@ public class Gui extends JFrame {
         resultScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         getContentPane().add(resultScrollPane);
         analysisButton.addActionListener(e -> {
+            System.out.println(textArea.getText());
             LexicalAnalysis lexicalAnalysis = new LexicalAnalysis(textArea.getText());
-            List<Token> tokenList = lexicalAnalysis.analyze();
-            DefaultTableModel firstTableModel = (DefaultTableModel) firstTable.getModel();
-            firstTableModel.setRowCount(0);
+            ArrayList<Token> tokenList = lexicalAnalysis.analyze();
+            System.out.println(tokenList.toString());
+            //DefaultTableModel firstTableModel = (DefaultTableModel) firstTable.getModel();
+            //firstTableModel.setRowCount(0);
+            try {
+                GrammarAnalysis grammarAnalysis = new GrammarAnalysis(tokenList);
+                grammarAnalysis.analysis();
+                ArrayList<AnalyzeStep> analyzeStepList = grammarAnalysis.getAnalyzeStepList();
+                
+
+            } catch (IOException | ClassNotFoundException ex) {
+                throw new RuntimeException(ex);
+            }
 
         });
         setVisible(true);

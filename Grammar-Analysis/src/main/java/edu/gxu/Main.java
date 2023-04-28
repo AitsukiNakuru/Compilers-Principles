@@ -11,8 +11,8 @@ import java.util.Arrays;
 import edu.gxu.lexical.Token;
 public class Main {
     public static void main(String[] args) throws IOException, ClassNotFoundException {
-        //new Gui();
-        String[] str;
+        new Gui();
+        /*String[] str;
         str= "id := id".split(" ");// Test-All-4
         str = "( ( a ) )".split(" ");// Test-All-5
         str = "int id = int".split(" ");// Test-All-6
@@ -23,7 +23,7 @@ public class Main {
             tokenList.add(i, new Token(str[i], "type", 1, 1));
         }
         GrammarAnalysis grammarAnalysis = new GrammarAnalysis(tokenList);
-        grammarAnalysis.analysis();
+        grammarAnalysis.analysis();*/
 
     }
 }
