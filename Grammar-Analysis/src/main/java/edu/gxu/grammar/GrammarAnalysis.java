@@ -19,6 +19,10 @@ public class GrammarAnalysis {
     Integer index = 0;
 
     public GrammarAnalysis(ArrayList<Token> inputString) throws IOException, ClassNotFoundException {
+        testInit(inputString);
+    }
+
+    private void testInit(ArrayList<Token> inputString) {
         for (Token token : inputString) {
             inputStack.addLast(token.value);
         }
@@ -42,6 +46,13 @@ public class GrammarAnalysis {
                 return false;
             }
             if (nextAction.equals(LREnum.Accept.getString())) {
+                AnalyzeStep analyzeStep = new AnalyzeStep(
+                        index++, stackToString(stateStack),
+                        stackToString(charStack),
+                        stackToString(inputStack),
+                        "Accept", " ", "Accept", " ");
+                analyzeStepList.add(analyzeStep);
+                System.out.println(analyzeStepList.get(analyzeStepList.size() - 1).toString());
                 return true;
             }
             if (!handleAction(nextAction)) {

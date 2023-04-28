@@ -17,7 +17,7 @@ public class Util {
     static {
         try {
             //init("Grammar.txt", "NonTerminal.txt.txt", "Terminal.txt");
-            String test = "Test-Follow-2/";
+            String test = "Test-All-Lin/";
             init(test + "Grammar.txt", test + "NonTerminal.txt", test + "Terminal.txt");
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -409,6 +409,15 @@ public class Util {
     }
 
     /**
+     * 是否为终结符
+     * @param str 检测符号
+     * @return 是否为终结符
+     */
+    static public boolean isTerminal(String str) {
+        return terminalSet.contains(str);
+    }
+
+    /**
      * 是否为空串
      *
      * @param str 检测符号
@@ -418,8 +427,14 @@ public class Util {
         return str.equals(LREnum.Epsilon.getString());
     }
 
+    /**
+     * 获取当前状态中所有LR项目可以到达的LR项目，比如S' -> .S 可以到达 S' -> S.
+     * @param lrItemSet 当前状态
+     * @return Key = Path， Value = 通过这个Path可以到达的LR项目，点未移动！！！
+     */
     static public HashMap<String, HashSet<LRItem>> getAccessibleMap(LRItemSet lrItemSet) {
         HashMap<String, HashSet<LRItem>> result = new HashMap<>();
+
         for (String path : lrItemSet.getAllCharAfterDot()) {
             if (!result.containsKey(path)) {
                 result.put(path, new HashSet<>());
@@ -428,6 +443,12 @@ public class Util {
         }
         return result;
     }
+
+    /**
+     * 根据产生式获取该产生式在产生式列表中的下标
+     * @param source 产生式
+     * @return 产生式在产生式列表中的下标
+     */
     static public String getIndexByProduction(Production source) {
         // indexOf不可以
         //Integer temp = productionList.indexOf(production);

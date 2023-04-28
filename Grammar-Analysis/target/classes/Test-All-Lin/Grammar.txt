@@ -1,0 +1,20 @@
+S' -> S
+S -> Sentence S | Sentence
+Sentence -> ForSentence | Declaration ; | VariableAssignList ; | SelfCalculation ; | Function
+Declaration -> VariableType VariableAssignList
+VariableType -> int | int36
+VariableAssignList -> VariableAssign , VariableAssignList | VariableAssign
+VariableAssign -> identifier = const | identifier = Calculation | identifier = SelfCalculation
+ForSentence -> for ( Declaration ; Condition ; SelfCalculation ) Sentence | for ( Declaration ; Condition ; SelfCalculation ) { S }
+Condition -> ConditionItem BooleanOperator ConditionItem
+ConditionItem -> identifier | const
+BooleanOperator -> < | <= | > | >= | == | !=
+Calculation -> CalculationItem CalculationOperator CalculationItemList
+CalculationItemList -> Calculation CalculationOperator CalculationItemList
+CalculationItem -> identifier | const
+CalculationOperator -> + | - | * | / | %
+SelfCalculation -> identifier SelfCalculationOperator
+SelfCalculationOperator -> ++ | --
+Function -> VariableType identifier ( ParameterList ) { S } | VariableType identifier ( ) { S }
+ParameterList -> Parameter , ParameterList | Parameter
+Parameter -> VariableType identifier

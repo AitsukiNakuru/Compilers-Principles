@@ -23,7 +23,6 @@ public class AnalyzeTable {
         System.out.println(dfa);
         System.out.println(goMapToString());
         initAnalyzeMap();
-        System.out.println("11");
     }
 
 
@@ -62,22 +61,28 @@ public class AnalyzeTable {
         this.dfa = new DFA();
         LRItemSet startLRItemSet = new LRItemSet(0);
         startLRItemSet.addLRItem(new LRItem(Util.getProductionListByLeft(LREnum.StartChar.getString()).get(0), LREnum.Sharp.getString(), 0));
-        for (LRItem lrItem : Util.filterLRItemSetByReductionState(startLRItemSet.lrItems, false)) {
-            // 若项目[A→α·Bβ, a]∈closure(I)，且B→γ是文法的产生式，β∈V*
-            HashSet<String> firstBeta = new HashSet<>();
-            fillFirstBeta(firstBeta, lrItem);
-            // 则对任何b∈FIRST(βa)有[B→·γ, b]∈closure(I)；
-            fillLRItemSetByFirstBetaAndLRItem(firstBeta, startLRItemSet, lrItem);
-        }
+        int originalSize = startLRItemSet.lrItems.size();
+        do {
+            originalSize = startLRItemSet.lrItems.size();
+            // 先将所有处于归约状态的项目过滤 = 过滤所有点在最后的项目
+            for (LRItem lrItem : Util.filterLRItemSetByReductionState(startLRItemSet.lrItems, false)) {
+                // 若项目[A→α·Bβ, a]∈closure(I)，且B→γ是文法的产生式，β∈V*
+                // 求First(βa)
+                HashSet<String> firstBeta = new HashSet<>();
+                fillFirstBeta(firstBeta, lrItem);
+                // 则对任何b∈FIRST(βa)有[B→·γ, b]∈closure(I)；
+                fillLRItemSetByFirstBetaAndLRItem(firstBeta, startLRItemSet, lrItem);
+            }
+        } while (originalSize != startLRItemSet.lrItems.size());
         dfa.lrItemSetList.add(startLRItemSet);
         HashMap<String, HashSet<LRItem>> accessibleMap = Util.getAccessibleMap(startLRItemSet);
         for (String key : accessibleMap.keySet()) {
-            addState(0, key, accessibleMap.get(key));
+            addState(startLRItemSet.id, key, accessibleMap.get(key));
         }
     }
 
     public void addState(int lastState, String path, HashSet<LRItem> originalLRItemSet) throws IOException, ClassNotFoundException {
-        System.out.println(dfa.lrItemSetList.size());
+
         LRItemSet lrItemSet = new LRItemSet(0);
         // deepCopy，很重要！
         lrItemSet.addLRItem(originalLRItemSet);
@@ -101,9 +106,9 @@ public class AnalyzeTable {
             return;
         }
 
-        for (String go : lrItemSet.getAllCharAfterDot()) {
-            HashSet<LRItem> set = lrItemSet.getLRItemSet(go);
-            addState(lrItemSet.id, go, set);
+        HashMap<String, HashSet<LRItem>> accessibleMap = Util.getAccessibleMap(lrItemSet);
+        for (String key : accessibleMap.keySet()) {
+            addState(lrItemSet.id, key, accessibleMap.get(key));
         }
 
     }
@@ -129,13 +134,14 @@ public class AnalyzeTable {
         return true;
     }
     /**
-     * 填充LR项目族通过First集和当前的LR项目
+     * 填充LR项目族通过First集和当前的LR项目，ppt91页步骤二
      *
      * @param firstBeta First集
      * @param lrItemSet LR项目族
      * @param lrItem    LR项目
      */
     public void fillLRItemSetByFirstBetaAndLRItem(HashSet<String> firstBeta, LRItemSet lrItemSet, LRItem lrItem) {
+        // 获取点后面的那个符号
         String charAfterDot = lrItem.getCharAfterDot();
         if (Util.isNonTerminal(charAfterDot)) {
             for (Production production : Util.getProductionListByLeft(charAfterDot)) {
@@ -161,7 +167,8 @@ public class AnalyzeTable {
      * @param lrItem    LR项目
      */
     public void fillFirstBeta(HashSet<String> firstBeta, LRItem lrItem) {
-        if (lrItem.isDotBeforeLastChar()) {
+        // 求firstBeta有点问题
+        /*if (lrItem.isDotBeforeLastChar()) {
             firstBeta.add(lrItem.lookahead);
         } else {
             boolean flag = true;
@@ -176,8 +183,23 @@ public class AnalyzeTable {
             if (flag) {
                 firstBeta.add(lrItem.lookahead);
             }
+        }*/
+        // 点后面是终结符直接不管
+        if (Util.isTerminal(lrItem.getCharAfterDot())) {
+            return;
         }
+        for (int i = lrItem.dotIndex + 1; i <= lrItem.production.getLastIndex(); i++) {
 
+            HashSet<String> tempFirst = Util.getFirstSetByChar(lrItem.getRightByIndex(i));
+            firstBeta.addAll(tempFirst);
+            // 如果tempFirst不包含空，则不继续向后查找
+            if (!tempFirst.contains(LREnum.Epsilon.getString())) {
+                break;
+            }
+        }
+        if (firstBeta.isEmpty()) {
+            firstBeta.add(lrItem.lookahead);
+        }
     }
 
 

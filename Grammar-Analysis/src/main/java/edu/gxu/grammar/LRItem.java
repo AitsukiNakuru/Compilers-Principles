@@ -42,7 +42,7 @@ public class LRItem implements Serializable {
     }
 
     /**
-     * 当前LR项目是否为归约状态
+     * 当前LR项目是否为归约状态，点在最右边的状态
      * @return 当前LR项目是否为归约状态
      */
     public boolean isReductionState() {

@@ -1,0 +1,54 @@
+S' -> S
+S' -> S
+S -> int main ( ) { Sentences }
+Sentences -> Sentence Sentences
+Sentences -> ε
+Sentence -> Ifs
+Sentence -> Elses
+Sentence -> Fors
+Sentence -> Repeats
+Repeats -> repeat do { Sentences } until ( Condition ) ;
+Sentence -> Assigs ;
+Sentence -> Declaration
+Sentence -> return Num ;
+Sentence -> { Sentences }
+Declaration -> int id As ;
+Declaration -> float id As ;
+Declaration -> char id As ;
+Declaration -> int62 id As ;
+As -> ε
+As -> , id As
+As -> = Nape SAs
+SAs -> , id As
+SAs -> ε
+Num -> int
+Num -> float
+Num -> int62
+Operation -> *
+Operation -> /
+Operation -> +
+Operation -> %
+Operation -> -
+Operation' -> ++
+Operation' -> --
+Relation -> <
+Relation -> <=
+Relation -> >
+Relation -> >=
+Relation -> !=
+Relation -> ==
+Ifs -> if ( Condition )
+Elses -> else Sentence
+Fors -> for ( Declaration Condition ; Assigs )
+Whilea -> while ( Condition ) { Sentences }
+Condition -> Expression Relation Expression
+Expression -> Nape
+Nape -> Factor Nape'
+Nape' -> Operation Factor
+Nape' -> ε
+Factor -> id
+Factor -> Num
+Assigs -> id Assigs'
+Assigs' -> Operation'
+Assigs' -> = Assig
+Assig -> Nape

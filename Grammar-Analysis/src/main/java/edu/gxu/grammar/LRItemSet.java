@@ -118,8 +118,22 @@ public class LRItemSet {
         }
         return result.toString();
     }
+
+    /**
+     * 比较两个LR项目族是否相等，仅比较LR项目族中的每个LR项目是否相同，与LR项目族的id无关
+     * @param lrItemSet 待比较的LR项目族
+     * @return 两个LR项目族是否相等
+     */
     public boolean equalTo(LRItemSet lrItemSet) {
-        return this.toString().hashCode() == lrItemSet.toString().hashCode();
+        if (this.lrItems.size() != lrItemSet.lrItems.size()) {
+            return false;
+        }
+        for (LRItem targetLRItem : lrItemSet.lrItems) {
+            if (!this.containsLRItem(targetLRItem)) {
+                return false;
+            }
+        }
+        return true;
     }
     public boolean isSameState(LRItemSet lrItemSet) {
         return lrItems.equals(lrItemSet.lrItems);
