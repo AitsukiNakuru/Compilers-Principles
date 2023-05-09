@@ -221,6 +221,7 @@ public class LexicalAnalysis {
                 // 判断是否为非终态
                 boolean isError = state == 3 || state == 5 || state == 6 || state == 8;
                 if (isError) {
+
                     break;
                 }
                 backIndex();

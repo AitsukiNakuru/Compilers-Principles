@@ -1,5 +1,5 @@
 S' -> S
-S -> ε | Sentence S | Sentence
+S -> Sentence S | Sentence
 Sentence -> ForSentence | Declaration ; | VariableAssignList ; | SelfCalculation ; | Function
 Declaration -> VariableType VariableAssignList
 VariableType -> int | int36

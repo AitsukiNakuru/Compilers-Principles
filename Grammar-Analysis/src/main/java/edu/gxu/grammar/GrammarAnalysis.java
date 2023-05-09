@@ -106,9 +106,9 @@ public class GrammarAnalysis {
             Production production = GrammarUtil.productionList.get(productionIndex);
             analyzeStep.production = String.valueOf(production);
             // 2. 状态栈弹出与产生式右边长度相等数量的状态
-            batchPollLast(stateStack, production.right.size());
+            batchPollLast(stateStack, production.getRightSize());
             // 3. 符号栈弹出与产生式右边长度相等数量的符号
-            batchPollLast(charStack, production.right.size());
+            batchPollLast(charStack, production.getRightSize());
             // 4. 根据状态栈顶与产生式左边的非终结符获取GoTo状态
             Integer GoTo = analyzeTable.getGoTo(stateStack.getLast(), production.left);
             analyzeStep.Goto = String.valueOf(GoTo);

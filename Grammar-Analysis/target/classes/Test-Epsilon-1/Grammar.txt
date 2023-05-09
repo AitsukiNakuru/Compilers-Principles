@@ -1,0 +1,5 @@
+S' -> S
+S -> V = E
+V -> identifier V
+V -> ε
+E -> const

@@ -21,7 +21,12 @@ public class Production implements Serializable {
      * 产生式右边，将每个符号分开存储
      */
     public ArrayList<String> right = new ArrayList<>();
-
+    public Integer getRightSize() {
+        if (right.get(0).equals(LREnum.Epsilon.getString())) {
+            return 0;
+        }
+        return right.size();
+    }
 
     /**
      * 构造一个产生式 A->B C D

@@ -8,12 +8,18 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 public class AnalyzeTable {
-    public DFA dfa;
+    public static DFA dfa;
     public int actionLength;
     public int gotoLength;
     public String[] actionTitleList;
     public String[] gotoTitleList;
+    /**
+     * HashMap<状态编号， HashMap<输入字符， 操作>>
+     */
     public HashMap<Integer, HashMap<String, String>> analyzeMap;
+    /**
+     * HashMap<状态编号， HashMap<输入字符, 下一个状态>>
+     */
     public HashMap<Integer, HashMap<String, Integer>> goMap;
 
     public AnalyzeTable() throws IOException, ClassNotFoundException {
@@ -241,6 +247,7 @@ public class AnalyzeTable {
             analyzeMap.get(lrItemSet.id).put(LREnum.Sharp.getString(), LREnum.Accept.getString());
         }
     }
+
     public String goMapToString() {
         StringBuilder sb = new StringBuilder();
         sb.append("-----GoMap-----").append("\n");
@@ -259,9 +266,30 @@ public class AnalyzeTable {
     public String getNextAction(Integer state, String input) {
         String nextAction = analyzeMap.get(state).get(input);
         if (nextAction == null) {
-            return LREnum.Error.getString();
+            // 查找是否有空串的归约状态
+            nextAction = getNextEpsilonReductionAction(state, input);
+            if (nextAction.equals(LREnum.Error.getString())) {
+                return LREnum.Error.getString();
+            }
         }
         return nextAction;
+    }
+    /**
+     * 获取当前状态的空串归约状态
+     * @param state 当前状态
+     * @param input 下一个输入的字符
+     * @return 空串归约操作
+     */
+    static public String getNextEpsilonReductionAction(Integer state, String input) {
+        LRItemSet lrItemSet = dfa.lrItemSetList.get(state);
+        HashSet<LRItem> epsilonReduction = GrammarUtil.filterLRItemSetByProductEpsilon(lrItemSet.lrItems, true);
+        if (epsilonReduction.size() != 1) {
+            return LREnum.Error.getString();
+        }
+        if (!epsilonReduction.iterator().next().lookahead.equals(input)) {
+            return LREnum.Error.getString();
+        }
+        return "Reduce" + GrammarUtil.getIndexByProduction(epsilonReduction.iterator().next().production);
     }
     public Integer getGoTo(Integer state, String nonTerminal) {
         String GoTo = analyzeMap.get(state).get(nonTerminal);

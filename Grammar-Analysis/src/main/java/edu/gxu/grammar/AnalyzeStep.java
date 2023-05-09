@@ -1,14 +1,14 @@
 package edu.gxu.grammar;
 
 public class AnalyzeStep {
-    Integer index;
-    String stateStack;
-    String charStack;
-    String inputString;
-    String actionType;
-    String production;
-    String Action;
-    String Goto;
+    public Integer index;
+    public String stateStack;
+    public String charStack;
+    public String inputString;
+    public String actionType;
+    public String production;
+    public String Action;
+    public String Goto;
 
     public AnalyzeStep(Integer index, String stateStack, String charStack, String inputString, String actionType, String production, String action, String Goto) {
         this.index = index;
