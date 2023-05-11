@@ -40,6 +40,11 @@ public class LRItem implements Serializable {
     public String getCharAfterDot() {
         return production.right.get(dotIndex);
     }
+
+    /**
+     * 是否产生空串
+     * @return 是否产生空串
+     */
     public boolean isProductEpsilon() {
         if (production.right.size() == 1 && production.getRightFirstChar().equals(LREnum.Epsilon.getString())) {
             return true;
@@ -69,10 +74,19 @@ public class LRItem implements Serializable {
     public boolean isBetaEmpty() {
         return isDotBeforeLastChar();
     }
+
+    /**
+     * 根据下标获取产生式右边的符号
+     * @param index 下标
+     * @return 产生式右边的符号
+     */
     public String getRightByIndex(Integer index) {
         return production.right.get(index);
     }
 
+    /**
+     * 将点向后移动
+     */
     public void moveDotToNext() {
         if (!isReductionState()) {
             dotIndex += 1;
@@ -103,9 +117,19 @@ public class LRItem implements Serializable {
         return result.toString();
     }
 
+    /**
+     * 没学会
+     * @param lrItem
+     * @return
+     */
     public boolean equalTo(LRItem lrItem) {
         return production.equals(lrItem.production) && lookahead.hashCode() == lrItem.lookahead.hashCode() && dotIndex == lrItem.dotIndex;
     }
+
+    /**
+     * 是否为Accept项目
+     * @return 是否为Accept项目
+     */
     public boolean isAcceptItem() {
         if (production.left.equals(LREnum.StartChar.getString())) {
             if (production.right.size() == 1) {
@@ -117,6 +141,9 @@ public class LRItem implements Serializable {
         return false;
     }
 
+    /**
+     * 深拷贝
+     */
     public LRItem deepCopy() throws IOException, ClassNotFoundException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(bos);
@@ -126,6 +153,11 @@ public class LRItem implements Serializable {
         return (LRItem) ois.readObject();
     }
 
+    /**
+     * 没学会
+     * @param o
+     * @return
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

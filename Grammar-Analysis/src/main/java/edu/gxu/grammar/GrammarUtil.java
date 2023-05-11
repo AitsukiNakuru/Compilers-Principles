@@ -321,10 +321,18 @@ public class GrammarUtil {
         }
     }
 
+    /**
+     * 查找follow集
+     * @param nonTerminal 非终结符
+     * @param original 已经查找过的follow集，因为查找follow集时会循环查找所以需要记录查找了哪些follow集
+     * @return follow集
+     */
     static public HashSet<String> findFollow(String nonTerminal, HashSet<String> original) {
-        //System.out.println(nonTerminal + " " + original);
+        // 查找出产生式右边包含目标非终结符的产生式
         for (Production production : filterProductionListByRightContainsNonTerminal(productionList, nonTerminal)) {
+            // 查找出目标非终结符所在下标，因为目标非终结符可能出现多次所以要遍历所有的下标
             for (Integer index : production.getIndexInRightByNonTerminal(nonTerminal)) {
+                // 如果目标非终结符在产生式的最后一个位置，将产生式左边符号的follow集加入目标非终结符的follow集
                 if (production.isLastChar(index)) {
                     if (!original.contains(production.left)) {
                         original.add(production.left);
@@ -332,16 +340,23 @@ public class GrammarUtil {
                     }
                     continue;
                 }
+                // 如果不在最后一个位置
                 if (!production.isLastChar(index)) {
+                    // 查找目标非终结符之后的符号
                     for (int i = index + 1; i <= production.getLastIndex(); i++) {
                         String nextChar = production.right.get(i);
+                        // 将该符号的fist集加入目标函数的follow集
+                        // 如果该符号的first集包含空串，将产生式左边符号的follow集加入目标函数的follow集
+                        // 这里好像要去除空串，但是我没去除，应该不要紧
                         if (getFirstSetByChar(nextChar).contains(LREnum.Epsilon.getString())) {
                             if (!original.contains(production.left)) {
                                 original.add(production.left);
                                 followMap.get(nonTerminal).addAll(findFollow(production.left, original));
                             }
                             followMap.get(nonTerminal).addAll(firstMap.get(nextChar));
-                        } else {
+                        }
+                        // 没有空串添加完first集后退出循环，不在继续向后查找
+                        else {
                             followMap.get(nonTerminal).addAll(firstMap.get(nextChar));
                             break;
                         }

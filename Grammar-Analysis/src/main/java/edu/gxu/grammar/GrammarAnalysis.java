@@ -32,6 +32,10 @@ public class GrammarAnalysis {
         charStack.addLast(LREnum.Sharp.getString());
     }
 
+    /**
+     * 开始分析
+     * @return 分析结果
+     */
     public boolean analysis() {
         analyzeStepList.add(new AnalyzeStep(
                 index++, stackToString(stateStack),
@@ -64,6 +68,11 @@ public class GrammarAnalysis {
 
     }
 
+    /**
+     * 处理动作
+     * @param action 动作
+     * @return 是否处理成功
+     */
     public boolean handleAction(String action) {
 
         /*
@@ -123,6 +132,12 @@ public class GrammarAnalysis {
         }
         return true;
     }
+
+    /**
+     * 从队列的末尾批量弹出
+     * @param stack 队列
+     * @param count 弹出数量
+     */
     public void batchPollLast(ArrayDeque<?> stack, int count) {
         for (int i= 0; i< count; i++) {
             stack.pollLast();
@@ -136,6 +151,11 @@ public class GrammarAnalysis {
         return sb.toString();
     }
 
+    /**
+     * 解析token，用于连接词法分析程序和语法分析程序
+     * @param token token
+     * @return 解析后的东西
+     */
     public String parseToken(Token token) {
         return switch (Objects.requireNonNull(TokenTypeEnum.getTypeByToken(token))) {
             case Keyword -> token.value;

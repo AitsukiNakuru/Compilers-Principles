@@ -36,8 +36,6 @@ public class AnalyzeTable {
      * 初始化表头
      */
     public void initTitleList() {
-        // 这里和张志路的不一样，待验证
-        // 还是用我的吧
         this.actionTitleList = new String[GrammarUtil.terminalSet.size() + 1];
         this.gotoTitleList = new String[GrammarUtil.nonTerminalSet.size()];
         int i = 0, j = 0;
@@ -88,31 +86,43 @@ public class AnalyzeTable {
         }
     }
 
+    /**
+     * 添加状态
+     * @param lastState 上一个状态
+     * @param path 通过的路径
+     * @param originalLRItemSet 上一个状态的LR项目族的其中一个LR项目，通过该项目触发此函数
+     */
     public void addState(int lastState, String path, HashSet<LRItem> originalLRItemSet) throws IOException, ClassNotFoundException {
 
         LRItemSet lrItemSet = new LRItemSet(0);
         // deepCopy，很重要！
         lrItemSet.addLRItem(originalLRItemSet);
+        // 将上一个LR项目的点向后移动
         lrItemSet.lrItems.forEach(LRItem::moveDotToNext);
         int originalSize = lrItemSet.lrItems.size();
+        // 求闭包，直到不再增大
         do {
             originalSize = lrItemSet.lrItems.size();
+            // 查找出所有非归约状态的LR项目
             for (LRItem lrItem : GrammarUtil.filterLRItemSetByReductionState(lrItemSet.lrItems, false)) {
+                // 根据当前LR项目获取firstBeta
                 HashSet<String> firstBeta = new HashSet<>();
                 fillFirstBeta(firstBeta, lrItem);
+                // 根据当前LR项目的产生式获取可以直接推出的产生式？？？写在下一个函数里面了
                 ArrayList<Production> productionList = GrammarUtil.getProductionListByLeft(lrItem.getCharAfterDot());
+                // 根据firstBet和LR项目填充LR项目族
                 fillLRItemSetByFirstBetaAndLRItem(firstBeta, lrItemSet, lrItem);
             }
         } while (originalSize != lrItemSet.lrItems.size());
 
-
+        // 如果DFA中已经包含了此状态，则不添加次状态且不再继续向后查找
         lrItemSet.id = dfa.size();
         if (fillGoMap(lrItemSet, lastState, path)) {
             dfa.addLRItemSet(lrItemSet);
         } else {
             return;
         }
-
+        // 获取当前状态可以到达的状态，将这些状态添加到DFA中
         HashMap<String, HashSet<LRItem>> accessibleMap = GrammarUtil.getAccessibleMap(lrItemSet);
         for (String key : accessibleMap.keySet()) {
             addState(lrItemSet.id, key, accessibleMap.get(key));
@@ -209,7 +219,9 @@ public class AnalyzeTable {
         }
     }
 
-
+    /**
+     * 初始化分析表
+     */
     public void initAnalyzeMap() {
         analyzeMap = new HashMap<>();
         // ①对每一个项目集Ii，在分析表中记入状态i的分析动作表：
@@ -227,6 +239,11 @@ public class AnalyzeTable {
         }
 
     }
+
+    /**
+     * 根据一个LR项目族填充分析表
+     * @param lrItemSet LR项目族
+     */
     public void fillAnalyzeMap(LRItemSet lrItemSet) {
         for (LRItem lrItem : lrItemSet.lrItems) {
             // 若[A→α·, a]∈Ii, 且A→α为文法第j个产生式,则：action[i, a]=rj;
@@ -263,10 +280,17 @@ public class AnalyzeTable {
         return sb.toString();
     }
 
+    /**
+     * 获取下一个动作
+     * @param state 当前状态
+     * @param input 输入字符
+     * @return 下一个动作
+     */
     public String getNextAction(Integer state, String input) {
+        // 先从分析表中查询
         String nextAction = analyzeMap.get(state).get(input);
         if (nextAction == null) {
-            // 查找是否有空串的归约状态
+            // 无法从分析表中查找到下一个动作，再查找是否有空串的归约状态
             nextAction = getNextEpsilonReductionAction(state, input);
             if (nextAction.equals(LREnum.Error.getString())) {
                 return LREnum.Error.getString();
