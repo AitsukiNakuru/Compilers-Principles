@@ -115,6 +115,7 @@ public class GrammarAnalysis {
             Production production = GrammarUtil.productionList.get(productionIndex);
             analyzeStep.production = String.valueOf(production);
             // 2. 状态栈弹出与产生式右边长度相等数量的状态
+            // getRightSize会处理空串
             batchPollLast(stateStack, production.getRightSize());
             // 3. 符号栈弹出与产生式右边长度相等数量的符号
             batchPollLast(charStack, production.getRightSize());

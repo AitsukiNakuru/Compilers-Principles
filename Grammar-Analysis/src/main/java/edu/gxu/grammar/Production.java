@@ -21,6 +21,11 @@ public class Production implements Serializable {
      * 产生式右边，将每个符号分开存储
      */
     public ArrayList<String> right = new ArrayList<>();
+
+    /**
+     * 获取产生式右边的长度
+     * @return
+     */
     public Integer getRightSize() {
         if (right.get(0).equals(LREnum.Epsilon.getString())) {
             return 0;
@@ -84,10 +89,19 @@ public class Production implements Serializable {
         return this.right.size() - 1;
     }
 
+    /**
+     * 指定下标的符号是否是最后一个符号
+     * @param index 下标
+     * @return 是否为最后一个符号
+     */
     public boolean isLastChar(Integer index) {
         return Objects.equals(index, getLastIndex());
     }
 
+    /**
+     * 获取产生式右边的第一个符号
+     * @return 产生式右边的第一个符号
+     */
     public String getRightFirstChar() {
         return right.get(0);
     }
